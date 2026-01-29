@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Secrets - CRITICAL: Never commit these
+.env
+*.json
+!package.json
+*-sa-key.json
+*credentials*.json
+secrets/
+credentials/
+
+# IDE
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Data - keep mock, ignore production
+data/raw/
+data/production/
+*.parquet
+!data/mock_csv/
+!data/post_mortems/
+
+# ChromaDB persistence (can be regenerated)
+data/embeddings/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Streamlit
+.streamlit/secrets.toml

@@ -1,0 +1,41 @@
+incident_id,date,channel,anomaly_type,severity,root_cause,resolution,similarity_score
+INC-2025-100,2025-05-18,tv,Reach Drop,medium,Primetime spots preempted by breaking news coverage.,Received make-goods for preempted spots next week.,0.86
+INC-2025-101,2025-08-30,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.73
+INC-2025-102,2025-05-15,tv,Reach Drop,medium,Measurement lag from Nielsen reporting caused data gap.,Applied strict frequency capping across CTV publishers.,0.93
+INC-2025-103,2025-10-16,google_search,CPA Spike,medium,New market entrant bidding heavily on our exact match keywords.,Launched defensive brand campaign with aggressive Top IS target.,0.73
+INC-2025-104,2025-06-23,influencer,Fraud Alert,high,Comment section filled with generic bot spam.,Implemented vetting tool to audit audience quality pre-hire.,0.85
+INC-2025-105,2025-02-03,tv,Reach Drop,critical,Frequency cap issues on Connected TV (CTV) inventory.,Used spot logs for interim reporting while awaiting Nielsen.,0.87
+INC-2025-106,2025-05-19,podcast,Low Engagement,high,Episode released on holiday weekend with low downloads.,Created vanity URL redirect to fix promo code error.,0.71
+INC-2025-107,2025-06-22,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.88
+INC-2025-108,2025-07-19,linkedin_ads,High CPL,medium,"Job title targeting too broad, capturing entry-level roles.",Expanded audience using lookalikes of customer list.,0.78
+INC-2025-109,2025-10-15,influencer,Fraud Alert,critical,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity clause.,0.92
+INC-2025-110,2025-06-06,affiliate,Conversion Drop,high,Top affiliate partner removed our link from their homepage.,Invalidated leaked codes and issued exclusive links.,0.72
+INC-2025-111,2025-06-03,meta_ads,Zero Conversions,critical,Tracking pixel fell off checkout page after deployment #1204.,Switched to 7-day click attribution window for reporting.,0.8
+INC-2025-112,2025-09-12,google_pmax,Spend Surge,critical,Uncapped budget allowed PMax to spend 300% of daily average.,Implemented strict daily spend caps and tROAS targets.,0.85
+INC-2026-113,2026-01-05,tv,Reach Drop,high,Frequency cap issues on Connected TV (CTV) inventory.,Received make-goods for preempted spots next week.,0.95
+INC-2025-114,2025-02-03,tv,Reach Drop,medium,Frequency cap issues on Connected TV (CTV) inventory.,Received make-goods for preempted spots next week.,0.71
+INC-2025-115,2025-01-30,meta_ads,Low CTR,medium,Audience saturation in 'Lookalike 1%' audience.,Re-uploaded video assets and cleared cache.,0.95
+INC-2025-116,2025-06-06,tv,Reach Drop,medium,Primetime spots preempted by breaking news coverage.,Received make-goods for preempted spots next week.,0.71
+INC-2025-117,2025-07-22,meta_ads,Zero Conversions,critical,GTM container rollback accidentally removed purchase event.,Restored previous GTM version and verified checkout firing.,0.89
+INC-2025-118,2025-03-13,google_pmax,Spend Surge,critical,Uncapped budget allowed PMax to spend 300% of daily average.,Added negative IP lists and enabled click fraud protection.,0.83
+INC-2025-119,2025-08-05,affiliate,Conversion Drop,critical,Top affiliate partner removed our link from their homepage.,Invalidated leaked codes and issued exclusive links.,0.9
+INC-2025-120,2025-09-19,linkedin_ads,High CPL,critical,"Audience size too small (<50k), leading to high frequency.",Disabled Audience Network to focus on feed placements.,0.79
+INC-2025-121,2025-08-23,influencer,Fraud Alert,medium,Sudden spike in followers from non-target geo (click farm).,Implemented vetting tool to audit audience quality pre-hire.,0.73
+INC-2025-122,2025-10-03,meta_ads,Low CTR,critical,Broken video asset rendering as black screen.,Expanded audience to 'Lookalike 5%' and broad interest.,0.87
+INC-2026-123,2026-01-04,affiliate,Conversion Drop,critical,Top affiliate partner removed our link from their homepage.,Voided commissions for fraudulent leads and blocked sub-ID.,0.82
+INC-2025-124,2025-08-29,affiliate,Conversion Drop,critical,Top affiliate partner removed our link from their homepage.,Renegotiated placement with top partner.,0.7
+INC-2025-125,2025-08-17,google_search,CPA Spike,medium,Auction insights show 40% overlap increase with top competitor.,Launched defensive brand campaign with aggressive Top IS target.,0.74
+INC-2025-126,2025-11-10,linkedin_ads,High CPL,high,"Job title targeting too broad, capturing entry-level roles.",Added seniority exclusions to target decision makers only.,0.72
+INC-2025-127,2025-06-20,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.88
+INC-2026-128,2026-01-19,google_search,CPA Spike,medium,Auction insights show 40% overlap increase with top competitor.,Temporarily increased budget caps to capture holiday demand.,0.9
+INC-2025-129,2025-12-17,affiliate,Conversion Drop,critical,Fraudulent leads detected from new sub-affiliate network.,Renegotiated placement with top partner.,0.9
+INC-2025-130,2025-08-19,podcast,Low Engagement,critical,Promo code mentioned on air didn't match backend.,Shifted future ad buys to mid-week release schedules.,0.73
+INC-2025-131,2025-08-02,linkedin_ads,High CPL,critical,LinkedIn Audience Network delivering low-quality clicks.,Disabled Audience Network to focus on feed placements.,0.79
+INC-2025-132,2025-12-30,meta_ads,Low CTR,high,Headline 'Free Shipping' no longer resonating with segment.,Re-uploaded video assets and cleared cache.,0.78
+INC-2025-133,2025-05-05,meta_ads,Zero Conversions,critical,iOS update caused 48-hour reporting delay on conversions.,Restored previous GTM version and verified checkout firing.,0.93
+INC-2025-134,2025-06-27,google_pmax,Spend Surge,medium,Uncapped budget allowed PMax to spend 300% of daily average.,Added negative IP lists and enabled click fraud protection.,0.8
+INC-2025-135,2025-08-13,google_pmax,Spend Surge,high,PMax auto-expanded to low quality Display inventory.,Implemented strict daily spend caps and tROAS targets.,0.86
+INC-2025-136,2025-11-04,podcast,Low Engagement,critical,Episode released on holiday weekend with low downloads.,Created vanity URL redirect to fix promo code error.,0.79
+INC-2025-137,2025-03-28,meta_ads,Low CTR,high,Audience saturation in 'Lookalike 1%' audience.,Tested new '20% Off' hooks and headlines.,0.73
+INC-2025-138,2025-06-21,affiliate,Conversion Drop,high,Top affiliate partner removed our link from their homepage.,Voided commissions for fraudulent leads and blocked sub-ID.,0.7
+INC-2025-139,2025-12-08,meta_ads,Zero Conversions,critical,GTM container rollback accidentally removed purchase event.,Restored previous GTM version and verified checkout firing.,0.87

@@ -1,0 +1,59 @@
+[project]
+name = "expedition"
+version = "0.1.0"
+description = "Automated Decision Engine for Performance Marketing"
+requires-python = ">=3.11"
+dependencies = [
+    # Core
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "pyyaml>=6.0",
+    
+    # LangChain & LangGraph
+    "langchain>=0.3.0",
+    "langgraph>=0.2.70",
+    "langchain-google-vertexai>=2.0.0",
+    "langchain-community>=0.3.0",
+    
+    # Google Cloud
+    "google-cloud-aiplatform>=1.40.0",
+    "google-cloud-bigquery>=3.14.0",
+    "google-auth>=2.25.0",
+    
+    # RAG / Vector Store
+    "chromadb>=0.4.22",
+    
+    # UI
+    "streamlit>=1.30.0",
+    
+    # Data Processing
+    "pandas>=2.1.0",
+    "numpy>=1.26.0",
+    
+    # Utilities
+    "httpx>=0.26.0",
+    "tenacity>=8.2.0",
+    "structlog>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.9",
+    "ipykernel>=6.28.0",
+]
+production = [
+    "google-ads>=23.0.0",
+    "facebook-business>=19.0.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
