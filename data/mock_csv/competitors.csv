@@ -1,4 +1,118 @@
 date,competitor,channel,activity_type,impact_level,details
-2026-01-28 13:48:33.890452,BrandX,google_search,aggressive_bidding,high,Impression share lost increased 15%
-2026-01-29 13:48:33.890452,BrandX,google_search,aggressive_bidding,high,Impression share lost increased 15%
-2026-01-30 13:48:33.890452,BrandX,google_search,aggressive_bidding,high,Impression share lost increased 15%
+2025-11-02 23:08:59.491571,DealSite,affiliate,exclusive_deal,low,Exclusive affiliate partnership
+2025-11-03 23:08:59.491571,RivalBrand,google_search,brand_conquest,low,Direct brand term bidding detected
+2025-11-04 23:08:59.491571,TrendSetters,tiktok_ads,spark_ads_push,high,Native-style promotion
+2025-11-04 23:08:59.491571,AdTechGiant,programmatic,deal_id_exclusive,medium,Publisher exclusives
+2025-11-04 23:08:59.491571,PodcastPro,podcast,host_endorsement,medium,Long-term deal
+2025-11-04 23:08:59.491571,BillboardBoss,ooh,digital_ooh_expansion,high,Dynamic creative deployed
+2025-11-07 23:08:59.491571,CompetitorCo,google_search,aggressive_bidding,high,Impression share lost increased by 46%
+2025-11-08 23:08:59.491571,BrandX,google_youtube,pre_roll_blitz,high,Heavy pre-roll presence
+2025-11-08 23:08:59.491571,PodcastPro,podcast,exclusive_sponsorship,medium,Season-long deal
+2025-11-09 23:08:59.491571,RivalBrand,google_search,aggressive_bidding,low,Impression share lost increased by 18%
+2025-11-10 23:08:59.491571,BrandX,meta_ads,creative_refresh,medium,Updated visual identity
+2025-11-10 23:08:59.491571,TrendSetters,tiktok_ads,hashtag_challenge,high,Challenge going viral
+2025-11-12 23:08:59.491571,D2C_Rival,meta_ads,promo_campaign,medium,11% off promotion
+2025-11-12 23:08:59.491571,AudioFirst,podcast,host_endorsement,medium,Long-term deal
+2025-11-13 23:08:59.491571,BrandX,google_pmax,budget_increase,medium,Estimated 49% budget increase
+2025-11-14 23:08:59.491571,BrandX,google_pmax,new_asset_groups,medium,Fresh creative detected
+2025-11-14 23:08:59.491571,ViralCo,tiktok_ads,spark_ads_push,high,Boosting organic content
+2025-11-14 23:08:59.491571,PodcastPro,podcast,exclusive_sponsorship,medium,Season-long deal
+2025-11-14 23:08:59.491571,MailOrder,direct_mail,postage_increase,high,More personalization
+2025-11-15 23:08:59.491571,BrandX,google_display,audience_expansion,low,New audience segments targeted
+2025-11-15 23:08:59.491571,GenZ_Brand,tiktok_ads,creator_partnership,medium,Multi-post campaign
+2025-11-16 23:08:59.491571,DealSite,affiliate,exclusive_deal,high,Top publisher locked
+2025-11-16 23:08:59.491571,NationalBrand,radio,drive_time_blitz,medium,Frequency increased
+2025-11-17 23:08:59.491571,AdTechGiant,programmatic,deal_id_exclusive,high,Premium placement secured
+2025-11-18 23:08:59.491571,TrendSetters,tiktok_ads,spark_ads_push,low,Native-style promotion
+2025-11-19 23:08:59.491571,RivalBrand,google_search,aggressive_bidding,high,CPCs up 45% in brand auctions
+2025-11-20 23:08:59.491571,BrandX,google_search,new_campaign,low,New campaign launched targeting our audience
+2025-11-20 23:08:59.491571,DirectCompete,google_pmax,budget_increase,low,Expanded geo targeting
+2025-11-20 23:08:59.491571,BrandX,meta_ads,lookalike_expansion,medium,New custom audiences
+2025-11-21 23:08:59.491571,PodcastPro,podcast,exclusive_sponsorship,medium,Season-long deal
+2025-11-22 23:08:59.491571,BrandX,google_pmax,new_asset_groups,low,New product showcase
+2025-11-22 23:08:59.491571,SocialNative,meta_ads,lookalike_expansion,medium,New custom audiences
+2025-11-22 23:08:59.491571,BillboardBoss,ooh,prime_location_grab,low,Billboard exclusive
+2025-11-23 23:08:59.491571,MediaBuyer,programmatic,inventory_grab,high,Exclusive deal detected
+2025-11-23 23:08:59.491571,BigSpender,tv,upfront_commitment,high,$145M commitment
+2025-11-24 23:08:59.491571,DirectCompete,google_pmax,budget_increase,high,Expanded geo targeting
+2025-11-24 23:08:59.491571,VideoFirst,google_youtube,brand_channel_launch,medium,Subscriber push campaign
+2025-11-24 23:08:59.491571,BrandX,meta_ads,promo_campaign,low,21% off promotion
+2025-11-24 23:08:59.491571,AudioFirst,podcast,host_endorsement,medium,Signed podcast host
+2025-11-25 23:08:59.491571,GenZ_Brand,tiktok_ads,creator_partnership,medium,Exclusive content deal
+2025-11-27 23:08:59.491571,RivalBrand,google_search,brand_conquest,high,Ad copy mentions us by name
+2025-11-27 23:08:59.491571,TrendSetters,tiktok_ads,hashtag_challenge,high,UGC campaign active
+2025-11-29 23:08:59.491571,StreamCo,google_youtube,influencer_collab,low,Brand ambassador announced
+2025-11-30 23:08:59.491571,TrendSetters,tiktok_ads,hashtag_challenge,low,Challenge going viral
+2025-12-01 23:08:59.491571,D2C_Rival,meta_ads,lookalike_expansion,high,Expanded lookalike targeting
+2025-12-02 23:08:59.491571,ViralCo,tiktok_ads,spark_ads_push,high,Native-style promotion
+2025-12-02 23:08:59.491571,StreetLevel,ooh,digital_ooh_expansion,medium,Dynamic creative deployed
+2025-12-03 23:08:59.491571,ViralCo,tiktok_ads,creator_partnership,low,Multi-post campaign
+2025-12-04 23:08:59.491571,NationalBrand,radio,format_takeover,high,Bought out format
+2025-12-05 23:08:59.491571,DisplayKing,google_display,audience_expansion,medium,New audience segments targeted
+2025-12-05 23:08:59.491571,VideoFirst,google_youtube,brand_channel_launch,high,Subscriber push campaign
+2025-12-06 23:08:59.491571,SocialNative,meta_ads,lookalike_expansion,medium,Broader reach campaign
+2025-12-06 23:08:59.491571,ViralCo,tiktok_ads,hashtag_challenge,low,Challenge going viral
+2025-12-07 23:08:59.491571,EnterpriseCo,linkedin_ads,inmail_campaign,high,Decision-maker targeting
+2025-12-08 23:08:59.491571,BrandX,google_display,audience_expansion,low,New audience segments targeted
+2025-12-08 23:08:59.491571,AdTechGiant,programmatic,inventory_grab,medium,Exclusive deal detected
+2025-12-11 23:08:59.491571,ViralCo,tiktok_ads,spark_ads_push,low,Native-style promotion
+2025-12-12 23:08:59.491571,CouponKing,affiliate,commission_increase,high,Higher payouts offered
+2025-12-13 23:08:59.491571,BrandX,google_pmax,new_asset_groups,medium,New product showcase
+2025-12-13 23:08:59.491571,NationalBrand,radio,format_takeover,medium,Daypart domination
+2025-12-14 23:08:59.491571,NationalBrand,radio,drive_time_blitz,medium,Heavy drive time presence
+2025-12-17 23:08:59.491571,AdTechGiant,programmatic,deal_id_exclusive,low,Publisher exclusives
+2025-12-18 23:08:59.491571,BrandX,google_pmax,budget_increase,high,More frequent ad serving observed
+2025-12-19 23:08:59.491571,B2B_Leader,linkedin_ads,inmail_campaign,high,Direct outreach detected
+2025-12-20 23:08:59.491571,DisplayKing,google_display,retargeting_push,low,Aggressive remarketing observed
+2025-12-20 23:08:59.491571,D2C_Rival,meta_ads,lookalike_expansion,high,New custom audiences
+2025-12-20 23:08:59.491571,GenZ_Brand,tiktok_ads,hashtag_challenge,low,UGC campaign active
+2025-12-21 23:08:59.491571,BrandX,meta_ads,promo_campaign,low,Limited time offer running
+2025-12-23 23:08:59.491571,NationalBrand,tv,primetime_takeover,low,Primetime roadblock
+2025-12-24 23:08:59.491571,ViralCo,tiktok_ads,creator_partnership,high,Exclusive content deal
+2025-12-26 23:08:59.491571,VideoFirst,google_youtube,pre_roll_blitz,high,Targeting our video viewers
+2025-12-26 23:08:59.491571,MediaBuyer,programmatic,deal_id_exclusive,medium,Locked in deal IDs
+2025-12-26 23:08:59.491571,LegacyCo,tv,primetime_takeover,medium,Category exclusive
+2025-12-28 23:08:59.491571,BrandX,google_pmax,budget_increase,high,More frequent ad serving observed
+2025-12-28 23:08:59.491571,BrandX,meta_ads,promo_campaign,high,46% off promotion
+2025-12-29 23:08:59.491571,DisplayKing,google_display,retargeting_push,low,Dynamic product ads increased
+2025-12-30 23:08:59.491571,MediaBuyer,programmatic,deal_id_exclusive,medium,Publisher exclusives
+2026-01-01 23:08:59.491571,BrandX,google_search,new_campaign,medium,Bidding on our brand terms
+2026-01-01 23:08:59.491571,DirectCompete,google_pmax,new_asset_groups,high,Fresh creative detected
+2026-01-02 23:08:59.491571,BrandX,google_youtube,influencer_collab,medium,Brand ambassador announced
+2026-01-03 23:08:59.491571,StreetLevel,ooh,prime_location_grab,medium,Billboard exclusive
+2026-01-04 23:08:59.491571,CompetitorCo,google_search,aggressive_bidding,high,CPCs up 19% in brand auctions
+2026-01-04 23:08:59.491571,DealSite,affiliate,commission_increase,high,Raised affiliate commissions 25%
+2026-01-04 23:08:59.491571,PodcastPro,podcast,exclusive_sponsorship,high,Category lockout
+2026-01-05 23:08:59.491571,B2B_Leader,linkedin_ads,inmail_campaign,medium,Direct outreach detected
+2026-01-07 23:08:59.491571,StreamCo,google_youtube,pre_roll_blitz,low,Bumper ad saturation
+2026-01-08 23:08:59.491571,GenZ_Brand,tiktok_ads,creator_partnership,medium,Multi-post campaign
+2026-01-10 23:08:59.491571,BillboardBoss,ooh,digital_ooh_expansion,low,DOOH campaign launched
+2026-01-12 23:08:59.491571,SocialNative,meta_ads,lookalike_expansion,low,Broader reach campaign
+2026-01-12 23:08:59.491571,PodcastPro,podcast,exclusive_sponsorship,medium,Season-long deal
+2026-01-13 23:08:59.491571,DirectCompete,google_pmax,budget_increase,high,More frequent ad serving observed
+2026-01-14 23:08:59.491571,ViralCo,tiktok_ads,hashtag_challenge,medium,UGC campaign active
+2026-01-15 23:08:59.491571,CompetitorCo,google_search,new_campaign,medium,Bidding on our brand terms
+2026-01-15 23:08:59.491571,BrandX,google_pmax,new_asset_groups,high,New product showcase
+2026-01-15 23:08:59.491571,CouponKing,affiliate,commission_increase,high,Bonus structure improved
+2026-01-16 23:08:59.491571,BrandX,google_display,retargeting_push,medium,Following our site visitors
+2026-01-16 23:08:59.491571,VideoFirst,google_youtube,pre_roll_blitz,high,Bumper ad saturation
+2026-01-17 23:08:59.491571,D2C_Rival,meta_ads,creative_refresh,medium,New brand messaging
+2026-01-17 23:08:59.491571,NationalBrand,radio,drive_time_blitz,medium,Frequency increased
+2026-01-19 23:08:59.491571,DisplayKing,google_display,retargeting_push,low,Following our site visitors
+2026-01-21 23:08:59.491571,VideoFirst,google_youtube,brand_channel_launch,low,New YouTube channel launched
+2026-01-21 23:08:59.491571,MailOrder,direct_mail,list_acquisition,low,New segments targeted
+2026-01-22 23:08:59.491571,ViralCo,tiktok_ads,spark_ads_push,high,Native-style promotion
+2026-01-22 23:08:59.491571,B2B_Leader,linkedin_ads,thought_leadership,high,Whitepaper promotion
+2026-01-23 23:08:59.491571,BrandX,google_display,retargeting_push,high,Dynamic product ads increased
+2026-01-23 23:08:59.491571,BrandX,meta_ads,creative_refresh,high,New brand messaging
+2026-01-24 23:08:59.491571,D2C_Rival,meta_ads,creative_refresh,medium,Updated visual identity
+2026-01-24 23:08:59.491571,LocalHero,radio,format_takeover,low,Bought out format
+2026-01-25 23:08:59.491571,ViralCo,tiktok_ads,hashtag_challenge,low,Branded hashtag launched
+2026-01-26 23:08:59.491571,DealSite,affiliate,commission_increase,high,Raised affiliate commissions 30%
+2026-01-26 23:08:59.491571,NationalBrand,radio,format_takeover,low,Bought out format
+2026-01-27 23:08:59.491571,DisplayKing,google_display,retargeting_push,low,Aggressive remarketing observed
+2026-01-27 23:08:59.491571,StreamCo,google_youtube,influencer_collab,medium,Partnered with @Influencer123
+2026-01-27 23:08:59.491571,GenZ_Brand,tiktok_ads,hashtag_challenge,medium,Branded hashtag launched
+2026-01-27 23:08:59.491571,DealSite,affiliate,commission_increase,medium,Bonus structure improved
+2026-01-27 23:08:59.491571,AudioFirst,podcast,exclusive_sponsorship,high,Category lockout
+2026-01-29 23:08:59.491571,BrandX,google_display,audience_expansion,low,Interest expansion detected
