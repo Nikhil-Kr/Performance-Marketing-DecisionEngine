@@ -71,9 +71,10 @@ def preflight_check(state: ExpeditionState) -> dict:
 
 def detect_anomalies(state: ExpeditionState) -> dict:
     """
-    Detect anomalies across all channels.
+    Detect anomalies across all channels within the analysis date range.
     
     Called after pre-flight passes to identify issues to investigate.
+    Respects the user's selected date range from state.
     """
     print("\n🔎 Detecting anomalies...")
     
@@ -89,18 +90,48 @@ def detect_anomalies(state: ExpeditionState) -> dict:
             "anomalies": state.get("anomalies", [selected])
         }
 
-    # 2. AUTO-PILOT: No user selection, so we scan everything and pick the worst one.
+    # 2. Extract date range from state (set by UI or batch processor)
+    start_date = None
+    end_date = None
+    
+    if state.get("analysis_start_date"):
+        try:
+            start_date = datetime.strptime(state["analysis_start_date"], "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+            
+    if state.get("analysis_end_date"):
+        try:
+            end_date = datetime.strptime(state["analysis_end_date"], "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+    
+    # Log the date range being used
+    if start_date and end_date:
+        print(f"  📅 Analysis period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+    elif end_date:
+        print(f"  📅 Analysis as of: {end_date.strftime('%Y-%m-%d')}")
+    else:
+        print(f"  📅 Analysis period: Using defaults (now)")
+
+    # 3. AUTO-PILOT: Scan everything with the date range
     marketing = get_marketing_data()
     influencer = get_influencer_data()
     
     all_anomalies = []
     
-    # Check marketing channels
-    marketing_anomalies = marketing.get_anomalies()
+    # Check marketing channels with date range
+    marketing_anomalies = marketing.get_anomalies(
+        start_date=start_date,
+        end_date=end_date
+    )
     all_anomalies.extend(marketing_anomalies)
     
-    # Check influencer campaigns
-    influencer_anomalies = influencer.get_anomalies()
+    # Check influencer campaigns with date range
+    influencer_anomalies = influencer.get_anomalies(
+        start_date=start_date,
+        end_date=end_date
+    )
     all_anomalies.extend(influencer_anomalies)
     
     # Select highest priority anomaly

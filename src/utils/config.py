@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
     # Google Cloud
-    google_cloud_project: str = ""
+    google_cloud_project: str = "nk-expedition-dev"
     google_application_credentials: str = ""
     vertex_ai_location: str = "us-central1"
     

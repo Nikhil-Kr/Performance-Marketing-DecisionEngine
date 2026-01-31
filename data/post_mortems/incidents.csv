@@ -1,41 +1,101 @@
 incident_id,date,channel,anomaly_type,severity,root_cause,resolution,similarity_score
-INC-2025-100,2025-05-18,tv,Reach Drop,medium,Primetime spots preempted by breaking news coverage.,Received make-goods for preempted spots next week.,0.86
-INC-2025-101,2025-08-30,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.73
-INC-2025-102,2025-05-15,tv,Reach Drop,medium,Measurement lag from Nielsen reporting caused data gap.,Applied strict frequency capping across CTV publishers.,0.93
-INC-2025-103,2025-10-16,google_search,CPA Spike,medium,New market entrant bidding heavily on our exact match keywords.,Launched defensive brand campaign with aggressive Top IS target.,0.73
-INC-2025-104,2025-06-23,influencer,Fraud Alert,high,Comment section filled with generic bot spam.,Implemented vetting tool to audit audience quality pre-hire.,0.85
-INC-2025-105,2025-02-03,tv,Reach Drop,critical,Frequency cap issues on Connected TV (CTV) inventory.,Used spot logs for interim reporting while awaiting Nielsen.,0.87
-INC-2025-106,2025-05-19,podcast,Low Engagement,high,Episode released on holiday weekend with low downloads.,Created vanity URL redirect to fix promo code error.,0.71
-INC-2025-107,2025-06-22,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.88
-INC-2025-108,2025-07-19,linkedin_ads,High CPL,medium,"Job title targeting too broad, capturing entry-level roles.",Expanded audience using lookalikes of customer list.,0.78
-INC-2025-109,2025-10-15,influencer,Fraud Alert,critical,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity clause.,0.92
-INC-2025-110,2025-06-06,affiliate,Conversion Drop,high,Top affiliate partner removed our link from their homepage.,Invalidated leaked codes and issued exclusive links.,0.72
-INC-2025-111,2025-06-03,meta_ads,Zero Conversions,critical,Tracking pixel fell off checkout page after deployment #1204.,Switched to 7-day click attribution window for reporting.,0.8
-INC-2025-112,2025-09-12,google_pmax,Spend Surge,critical,Uncapped budget allowed PMax to spend 300% of daily average.,Implemented strict daily spend caps and tROAS targets.,0.85
-INC-2026-113,2026-01-05,tv,Reach Drop,high,Frequency cap issues on Connected TV (CTV) inventory.,Received make-goods for preempted spots next week.,0.95
-INC-2025-114,2025-02-03,tv,Reach Drop,medium,Frequency cap issues on Connected TV (CTV) inventory.,Received make-goods for preempted spots next week.,0.71
-INC-2025-115,2025-01-30,meta_ads,Low CTR,medium,Audience saturation in 'Lookalike 1%' audience.,Re-uploaded video assets and cleared cache.,0.95
-INC-2025-116,2025-06-06,tv,Reach Drop,medium,Primetime spots preempted by breaking news coverage.,Received make-goods for preempted spots next week.,0.71
-INC-2025-117,2025-07-22,meta_ads,Zero Conversions,critical,GTM container rollback accidentally removed purchase event.,Restored previous GTM version and verified checkout firing.,0.89
-INC-2025-118,2025-03-13,google_pmax,Spend Surge,critical,Uncapped budget allowed PMax to spend 300% of daily average.,Added negative IP lists and enabled click fraud protection.,0.83
-INC-2025-119,2025-08-05,affiliate,Conversion Drop,critical,Top affiliate partner removed our link from their homepage.,Invalidated leaked codes and issued exclusive links.,0.9
-INC-2025-120,2025-09-19,linkedin_ads,High CPL,critical,"Audience size too small (<50k), leading to high frequency.",Disabled Audience Network to focus on feed placements.,0.79
-INC-2025-121,2025-08-23,influencer,Fraud Alert,medium,Sudden spike in followers from non-target geo (click farm).,Implemented vetting tool to audit audience quality pre-hire.,0.73
-INC-2025-122,2025-10-03,meta_ads,Low CTR,critical,Broken video asset rendering as black screen.,Expanded audience to 'Lookalike 5%' and broad interest.,0.87
-INC-2026-123,2026-01-04,affiliate,Conversion Drop,critical,Top affiliate partner removed our link from their homepage.,Voided commissions for fraudulent leads and blocked sub-ID.,0.82
-INC-2025-124,2025-08-29,affiliate,Conversion Drop,critical,Top affiliate partner removed our link from their homepage.,Renegotiated placement with top partner.,0.7
-INC-2025-125,2025-08-17,google_search,CPA Spike,medium,Auction insights show 40% overlap increase with top competitor.,Launched defensive brand campaign with aggressive Top IS target.,0.74
-INC-2025-126,2025-11-10,linkedin_ads,High CPL,high,"Job title targeting too broad, capturing entry-level roles.",Added seniority exclusions to target decision makers only.,0.72
-INC-2025-127,2025-06-20,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.88
-INC-2026-128,2026-01-19,google_search,CPA Spike,medium,Auction insights show 40% overlap increase with top competitor.,Temporarily increased budget caps to capture holiday demand.,0.9
-INC-2025-129,2025-12-17,affiliate,Conversion Drop,critical,Fraudulent leads detected from new sub-affiliate network.,Renegotiated placement with top partner.,0.9
-INC-2025-130,2025-08-19,podcast,Low Engagement,critical,Promo code mentioned on air didn't match backend.,Shifted future ad buys to mid-week release schedules.,0.73
-INC-2025-131,2025-08-02,linkedin_ads,High CPL,critical,LinkedIn Audience Network delivering low-quality clicks.,Disabled Audience Network to focus on feed placements.,0.79
-INC-2025-132,2025-12-30,meta_ads,Low CTR,high,Headline 'Free Shipping' no longer resonating with segment.,Re-uploaded video assets and cleared cache.,0.78
-INC-2025-133,2025-05-05,meta_ads,Zero Conversions,critical,iOS update caused 48-hour reporting delay on conversions.,Restored previous GTM version and verified checkout firing.,0.93
-INC-2025-134,2025-06-27,google_pmax,Spend Surge,medium,Uncapped budget allowed PMax to spend 300% of daily average.,Added negative IP lists and enabled click fraud protection.,0.8
-INC-2025-135,2025-08-13,google_pmax,Spend Surge,high,PMax auto-expanded to low quality Display inventory.,Implemented strict daily spend caps and tROAS targets.,0.86
-INC-2025-136,2025-11-04,podcast,Low Engagement,critical,Episode released on holiday weekend with low downloads.,Created vanity URL redirect to fix promo code error.,0.79
-INC-2025-137,2025-03-28,meta_ads,Low CTR,high,Audience saturation in 'Lookalike 1%' audience.,Tested new '20% Off' hooks and headlines.,0.73
-INC-2025-138,2025-06-21,affiliate,Conversion Drop,high,Top affiliate partner removed our link from their homepage.,Voided commissions for fraudulent leads and blocked sub-ID.,0.7
-INC-2025-139,2025-12-08,meta_ads,Zero Conversions,critical,GTM container rollback accidentally removed purchase event.,Restored previous GTM version and verified checkout firing.,0.87
+INC-2022-100,2022-01-26,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.74
+INC-2021-101,2021-07-04,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.74
+INC-2024-102,2024-05-23,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.78
+INC-2022-103,2022-11-19,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.91
+INC-2023-104,2023-04-03,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.9
+INC-2021-105,2021-04-11,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.7
+INC-2021-106,2021-12-14,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.89
+INC-2021-107,2021-12-01,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.88
+INC-2025-108,2025-02-11,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.88
+INC-2024-109,2024-05-05,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.7
+INC-2024-110,2024-10-23,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.86
+INC-2022-111,2022-12-07,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.94
+INC-2022-112,2022-10-06,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.92
+INC-2020-113,2020-06-29,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.75
+INC-2024-114,2024-03-01,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.87
+INC-2021-115,2021-08-14,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.89
+INC-2022-116,2022-08-14,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.72
+INC-2023-117,2023-12-24,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.9
+INC-2024-118,2024-01-23,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.77
+INC-2023-119,2023-02-13,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.91
+INC-2020-120,2020-11-10,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.73
+INC-2020-121,2020-09-07,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.75
+INC-2020-122,2020-07-09,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.8
+INC-2025-123,2025-07-23,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.8
+INC-2023-124,2023-10-31,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.85
+INC-2025-125,2025-09-21,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.76
+INC-2023-126,2023-10-28,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.9
+INC-2024-127,2024-09-04,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.95
+INC-2021-128,2021-10-08,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.87
+INC-2021-129,2021-02-03,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.9
+INC-2025-130,2025-11-13,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.82
+INC-2022-131,2022-03-25,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.92
+INC-2023-132,2023-02-19,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.93
+INC-2020-133,2020-02-08,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.93
+INC-2024-134,2024-04-01,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.88
+INC-2021-135,2021-01-09,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.71
+INC-2021-136,2021-10-04,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.93
+INC-2022-137,2022-09-26,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.87
+INC-2020-138,2020-02-25,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.71
+INC-2025-139,2025-08-02,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.79
+INC-2025-140,2025-07-10,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.73
+INC-2023-141,2023-07-01,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.88
+INC-2023-142,2023-11-04,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.82
+INC-2020-143,2020-02-19,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.92
+INC-2025-144,2025-11-25,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.72
+INC-2020-145,2020-09-13,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.82
+INC-2024-146,2024-11-23,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.71
+INC-2023-147,2023-02-18,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.8
+INC-2020-148,2020-06-02,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.94
+INC-2023-149,2023-10-16,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.72
+INC-2021-150,2021-10-16,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.92
+INC-2022-151,2022-07-11,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.91
+INC-2023-152,2023-06-19,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.73
+INC-2025-153,2025-10-15,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.92
+INC-2025-154,2025-03-15,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.79
+INC-2021-155,2021-01-25,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.87
+INC-2023-156,2023-05-05,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.7
+INC-2025-157,2025-11-09,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.74
+INC-2022-158,2022-02-22,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.84
+INC-2022-159,2022-10-12,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.86
+INC-2023-160,2023-08-09,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.73
+INC-2022-161,2022-12-07,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.9
+INC-2023-162,2023-12-13,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.79
+INC-2024-163,2024-10-02,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.94
+INC-2020-164,2020-06-03,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.84
+INC-2020-165,2020-02-26,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.84
+INC-2022-166,2022-10-23,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.8
+INC-2022-167,2022-05-08,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.88
+INC-2022-168,2022-12-26,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.71
+INC-2022-169,2022-08-19,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.87
+INC-2023-170,2023-09-27,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.75
+INC-2023-171,2023-12-11,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.73
+INC-2023-172,2023-08-15,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.9
+INC-2022-173,2022-07-09,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.82
+INC-2021-174,2021-11-13,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.74
+INC-2025-175,2025-06-27,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.93
+INC-2022-176,2022-03-24,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.8
+INC-2020-177,2020-02-23,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.8
+INC-2022-178,2022-09-06,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.76
+INC-2020-179,2020-09-01,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.77
+INC-2022-180,2022-10-08,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.89
+INC-2022-181,2022-03-27,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.73
+INC-2026-182,2026-01-27,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.9
+INC-2022-183,2022-04-10,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.7
+INC-2020-184,2020-11-09,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.73
+INC-2020-185,2020-08-07,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.83
+INC-2023-186,2023-08-30,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.87
+INC-2020-187,2020-07-17,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.82
+INC-2022-188,2022-05-08,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.87
+INC-2021-189,2021-06-08,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.92
+INC-2024-190,2024-02-22,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.86
+INC-2024-191,2024-02-29,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.82
+INC-2022-192,2022-11-01,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.93
+INC-2023-193,2023-06-20,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.79
+INC-2021-194,2021-10-03,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding.,Increased brand CPC bids.,0.7
+INC-2020-195,2020-04-19,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.8
+INC-2021-196,2021-12-09,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity.,0.78
+INC-2020-197,2020-09-27,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.92
+INC-2023-198,2023-12-31,tv,Reach Drop,high,Primetime spots preempted by breaking news.,Received make-goods.,0.82
+INC-2021-199,2021-12-23,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page.,Re-installed GTM container.,0.74

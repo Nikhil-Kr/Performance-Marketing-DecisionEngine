@@ -30,6 +30,7 @@ def send_diagnosis_alert(
     diagnosis: dict,
     actions: list,
     channel_override: str = None,
+    analysis_period: tuple = None,
 ) -> bool:
     """
     Send diagnosis summary to Slack.
@@ -39,6 +40,7 @@ def send_diagnosis_alert(
         diagnosis: Diagnosis result dict
         actions: List of proposed actions
         channel_override: Override default webhook channel
+        analysis_period: Optional tuple of (start_date, end_date) for context
         
     Returns:
         True if sent successfully
@@ -146,13 +148,19 @@ def send_diagnosis_alert(
             }
         })
     
-    # Add timestamp
+    # Add timestamp with analysis period context
+    timestamp_text = f"🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Expedition v0.1"
+    if analysis_period:
+        start_str = analysis_period[0].strftime('%Y-%m-%d') if hasattr(analysis_period[0], 'strftime') else str(analysis_period[0])
+        end_str = analysis_period[1].strftime('%Y-%m-%d') if hasattr(analysis_period[1], 'strftime') else str(analysis_period[1])
+        timestamp_text = f"📅 Analysis: {start_str} to {end_str} | {timestamp_text}"
+    
     blocks.append({
         "type": "context",
         "elements": [
             {
                 "type": "mrkdwn",
-                "text": f"🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Expedition v0.1"
+                "text": timestamp_text
             }
         ]
     })

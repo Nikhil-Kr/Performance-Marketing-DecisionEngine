@@ -15,6 +15,7 @@ from src.nodes.preflight import preflight_check, detect_anomalies
 from src.nodes.router import route_to_investigator, get_route_decision
 from src.nodes.investigators.paid_media import investigate_paid_media
 from src.nodes.investigators.influencer import investigate_influencer
+from src.nodes.investigators.offline import investigate_offline
 from src.nodes.memory.retriever import retrieve_historical_context
 from src.nodes.explainer.synthesizer import generate_explanation
 from src.nodes.proposer.action_mapper import propose_actions
@@ -40,11 +41,13 @@ def should_continue_after_detect(state: ExpeditionState) -> Literal["router", "n
     return "no_anomalies"
 
 
-def route_investigator(state: ExpeditionState) -> Literal["paid_media", "influencer"]:
+def route_investigator(state: ExpeditionState) -> Literal["paid_media", "influencer", "offline"]:
     """Route to appropriate specialist."""
     category = state.get("channel_category", "paid_media")
     if category == "influencer":
         return "influencer"
+    elif category == "offline":
+        return "offline"
     return "paid_media"
 
 
@@ -85,6 +88,7 @@ def build_expedition_graph() -> StateGraph:
     # Investigators
     workflow.add_node("paid_media", investigate_paid_media)
     workflow.add_node("influencer", investigate_influencer)
+    workflow.add_node("offline", investigate_offline)
     
     # Memory (RAG)
     workflow.add_node("memory", retrieve_historical_context)
@@ -130,12 +134,14 @@ def build_expedition_graph() -> StateGraph:
         {
             "paid_media": "paid_media",
             "influencer": "influencer",
+            "offline": "offline",
         }
     )
     
     # Linear flow through investigation
     workflow.add_edge("paid_media", "memory")
     workflow.add_edge("influencer", "memory")
+    workflow.add_edge("offline", "memory")
     workflow.add_edge("memory", "explainer")
     workflow.add_edge("explainer", "critic")
     
@@ -184,6 +190,10 @@ def run_expedition(initial_state: dict | None = None) -> dict:
         "data_freshness": None,
         "preflight_passed": False,
         "preflight_error": None,
+        # Analysis Time Window
+        "analysis_start_date": None,
+        "analysis_end_date": None,
+        # Anomaly Detection
         "anomalies": [],
         "selected_anomaly": None,
         "channel_category": None,

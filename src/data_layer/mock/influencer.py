@@ -9,11 +9,7 @@ from ..interfaces.base import BaseDataSource
 
 
 class MockInfluencerData(BaseDataSource):
-    """
-    Mock influencer data source using CSV files.
-    
-    In production, this would connect to CreatorIQ API or similar.
-    """
+    """Mock influencer data source using CSV files."""
     
     def __init__(self, data_dir: str = "data/mock_csv"):
         self.data_dir = Path(data_dir)
@@ -21,7 +17,6 @@ class MockInfluencerData(BaseDataSource):
         self._load_data()
     
     def _load_data(self) -> None:
-        """Load influencer campaign data."""
         csv_path = self.data_dir / "influencer_campaigns.csv"
         if csv_path.exists():
             try:
@@ -29,7 +24,17 @@ class MockInfluencerData(BaseDataSource):
                 print(f"  ✓ Loaded influencer campaigns: {len(self._campaigns)} rows")
             except Exception as e:
                 print(f"  ✗ Failed to load influencer data: {e}")
-    
+        else:
+            print(f"  ⚠️ Influencer file missing: {csv_path}")
+
+    # --- REQUIRED INTERFACE METHODS (Fixed) ---
+
+    def list_channels(self) -> list[str]:
+        """List all loaded channels."""
+        if not self._campaigns.empty:
+            return ["influencer_campaigns"]
+        return []
+
     def get_metrics(
         self,
         channel: str,
@@ -37,148 +42,120 @@ class MockInfluencerData(BaseDataSource):
         end_date: datetime,
         metrics: list[str] | None = None,
     ) -> pd.DataFrame:
-        """Get influencer metrics aggregated by date."""
+        """Fetch performance metrics for a channel (Required by Base Class)."""
         if self._campaigns.empty:
             return pd.DataFrame()
         
-        df = self._campaigns.copy()
-        mask = (df["post_date"] >= pd.Timestamp(start_date)) & (df["post_date"] <= pd.Timestamp(end_date))
-        df = df[mask]
+        # Filter by date range (using post_date)
+        mask = (self._campaigns["post_date"] >= pd.Timestamp(start_date)) & (self._campaigns["post_date"] <= pd.Timestamp(end_date))
+        df = self._campaigns[mask].copy()
         
-        # Aggregate by date
-        daily = df.groupby(df["post_date"].dt.date).agg({
-            "contract_value": "sum",
-            "impressions": "sum",
-            "engagements": "sum",
-            "clicks": "sum",
-            "conversions": "sum",
-            "earned_media_value": "sum",
-        }).reset_index()
-        daily.columns = ["date", "spend", "impressions", "engagements", "clicks", "conversions", "emv"]
+        # Rename post_date to date for consistency with generic marketing data interface
+        df = df.rename(columns={"post_date": "date"})
         
-        return daily
-    
-    def get_campaign_performance(
-        self,
-        campaign_id: str | None = None,
-    ) -> pd.DataFrame:
-        """Get performance by campaign."""
-        if self._campaigns.empty:
-            return pd.DataFrame()
-        
-        df = self._campaigns.copy()
-        if campaign_id:
-            df = df[df["campaign_id"] == campaign_id]
-        
+        if metrics:
+            # Ensure 'date' is preserved
+            cols = ["date"] + [m for m in metrics if m in df.columns]
+            df = df[cols]
+            
         return df
-    
-    def get_creator_performance(
-        self,
-        creator_id: str | None = None,
-    ) -> pd.DataFrame:
-        """Get performance by creator."""
-        if self._campaigns.empty:
-            return pd.DataFrame()
-        
-        df = self._campaigns.copy()
-        if creator_id:
-            df = df[df["creator_id"] == creator_id]
-        
-        # Aggregate by creator
-        return df.groupby(["creator_id", "creator_name", "platform"]).agg({
-            "contract_value": "sum",
-            "impressions": "sum",
-            "engagements": "sum",
-            "clicks": "sum",
-            "conversions": "sum",
-            "earned_media_value": "sum",
-        }).reset_index()
-    
+
+    # --- TIME TRAVEL & SPECIFIC METHODS ---
+
+    def get_campaign_performance(self) -> pd.DataFrame:
+        """Get all campaign performance data."""
+        return self._campaigns
+
     def get_anomalies(
         self,
         channel: str | None = None,
-        lookback_hours: int = 24,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         threshold_sigma: float = 2.0,
     ) -> list[dict[str, Any]]:
-        """Detect anomalies in influencer campaigns."""
-        anomalies = []
+        """
+        Detect anomalies in influencer campaigns within a date range.
         
-        if self._campaigns.empty:
+        Args:
+            channel: Ignored for influencer (always checks influencer_campaigns)
+            start_date: Start of analysis window
+            end_date: End of analysis window (detect anomalies as of this date)
+            threshold_sigma: Z-score threshold
+            
+        Returns:
+            List of anomaly dictionaries
+        """
+        anomalies = []
+        if self._campaigns.empty: 
             return anomalies
         
-        # Check engagement rate anomalies by creator
-        for creator_id in self._campaigns["creator_id"].unique():
-            creator_data = self._campaigns[self._campaigns["creator_id"] == creator_id]
+        # Default end_date to now
+        if not end_date:
+            end_date = datetime.now()
+        
+        # Default start_date to 30 days before end_date
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
             
-            if len(creator_data) < 3:
-                continue
+        end_ts = pd.Timestamp(end_date)
+        start_ts = pd.Timestamp(start_date)
+        
+        # Filter: Only look at posts within a small window of the end date
+        # (e.g. last 3 days leading up to end_date)
+        scan_window_start = end_ts - timedelta(days=3)
+        
+        # "Current" posts are ones in the scan window AND within our analysis period
+        recent_posts = self._campaigns[
+            (self._campaigns["post_date"] <= end_ts) & 
+            (self._campaigns["post_date"] >= scan_window_start) &
+            (self._campaigns["post_date"] >= start_ts)  # Must be within analysis window
+        ]
+        
+        for _, post in recent_posts.iterrows():
+            creator_id = post["creator_id"]
             
-            # Check engagement rate
-            engagement_rates = creator_data["engagement_rate"]
-            recent = engagement_rates.iloc[-1]
-            mean = engagement_rates.mean()
-            std = engagement_rates.std()
+            # Get history for this creator strictly BEFORE this post
+            # and ideally within or before the analysis window
+            history = self._campaigns[
+                (self._campaigns["creator_id"] == creator_id) & 
+                (self._campaigns["post_date"] < post["post_date"]) &
+                (self._campaigns["post_date"] <= end_ts)
+            ]
+            
+            if len(history) < 2: 
+                continue  # Need history to judge
+            
+            # Check Engagement Rate
+            recent = post["engagement_rate"]
+            mean = history["engagement_rate"].mean()
+            std = history["engagement_rate"].std()
             
             if std > 0:
                 z_score = (recent - mean) / std
                 if abs(z_score) >= threshold_sigma:
+                    severity = "critical" if abs(z_score) > 3 else "high"
+                    
                     anomalies.append({
-                        "channel": "influencer",
+                        "channel": "influencer_campaigns",
                         "metric": "engagement_rate",
-                        "entity": creator_data["creator_name"].iloc[0],
+                        "entity": post["creator_name"],
                         "current_value": round(recent, 4),
                         "expected_value": round(mean, 4),
                         "deviation_pct": round(((recent - mean) / mean) * 100, 1),
-                        "severity": "high" if abs(z_score) >= 3 else "medium",
+                        "severity": severity,
                         "direction": "spike" if z_score > 0 else "drop",
-                        "detected_at": datetime.now().isoformat(),
+                        "detected_at": post["post_date"].strftime('%Y-%m-%d'),
+                        # Include analysis context
+                        "analysis_start": start_date.strftime('%Y-%m-%d') if isinstance(start_date, datetime) else str(start_date),
+                        "analysis_end": end_date.strftime('%Y-%m-%d') if isinstance(end_date, datetime) else str(end_date),
                     })
         
         return anomalies
-    
-    def check_data_freshness(self) -> dict[str, datetime]:
-        """Check data freshness."""
-        if self._campaigns.empty:
-            return {}
-        
-        return {"influencer_campaigns": datetime.now()}
-    
+
     def is_healthy(self) -> bool:
         """Check if data is loaded."""
         return not self._campaigns.empty
-    
-    def list_channels(self) -> list[str]:
-        """List available channels."""
-        return ["influencer_campaigns"] if not self._campaigns.empty else []
-    
-    def get_attribution_analysis(
-        self,
-        campaign_id: str,
-    ) -> dict[str, Any]:
-        """
-        Get attribution/lift analysis for a campaign.
-        Mock: Returns synthetic causal analysis.
-        """
-        campaign = self._campaigns[self._campaigns["campaign_id"] == campaign_id]
         
-        if campaign.empty:
-            return {}
-        
-        total_conversions = campaign["conversions"].sum()
-        total_spend = campaign["contract_value"].sum()
-        
-        # Mock incremental lift calculation
-        baseline_rate = 0.02  # 2% baseline conversion
-        observed_rate = total_conversions / max(campaign["clicks"].sum(), 1)
-        incremental_lift = max(0, (observed_rate - baseline_rate) / baseline_rate * 100)
-        
-        return {
-            "campaign_id": campaign_id,
-            "total_spend": round(total_spend, 2),
-            "total_conversions": int(total_conversions),
-            "observed_conversion_rate": round(observed_rate, 4),
-            "baseline_conversion_rate": baseline_rate,
-            "incremental_lift_pct": round(incremental_lift, 1),
-            "statistical_significance": np.random.uniform(0.85, 0.99),
-            "confidence_interval": [round(incremental_lift * 0.8, 1), round(incremental_lift * 1.2, 1)],
-        }
+    def check_data_freshness(self) -> dict[str, datetime]:
+        """Check data freshness."""
+        return {"influencer_campaigns": datetime.now()}

@@ -52,7 +52,12 @@ class DiagnosisResult(BaseModel):
 class ActionPayload(BaseModel):
     """Executable action for remediation."""
     action_id: str
-    action_type: Literal["budget_change", "bid_adjustment", "pause", "enable", "notification"]
+    action_type: Literal[
+        # Digital actions
+        "budget_change", "bid_adjustment", "pause", "enable", "notification",
+        # Offline actions
+        "exclusion", "contract", "negotiation", "communication",
+    ]
     platform: str
     resource_type: str
     resource_id: str
@@ -90,6 +95,10 @@ class ExpeditionState(TypedDict):
     data_freshness: dict[str, str] | None
     preflight_passed: bool
     preflight_error: str | None
+    
+    # Analysis Time Window (User-selected date range)
+    analysis_start_date: str | None  # ISO format: "2025-01-01"
+    analysis_end_date: str | None    # ISO format: "2025-01-15"
     
     # Anomaly Detection
     anomalies: list[dict]  # List of AnomalyInfo as dicts

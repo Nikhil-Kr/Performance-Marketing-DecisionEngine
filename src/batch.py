@@ -3,7 +3,7 @@ Batch processing for multiple anomalies.
 
 Run with: python -m src.batch
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from src.graph import run_expedition
 from src.data_layer import get_marketing_data, get_influencer_data
 
@@ -12,14 +12,18 @@ def run_batch_diagnosis(
     max_anomalies: int = 5,
     min_severity: str = "low",
     send_notifications: bool = False,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
 ) -> list[dict]:
     """
-    Process multiple anomalies in sequence.
+    Process multiple anomalies in sequence within a date range.
     
     Args:
         max_anomalies: Maximum number of anomalies to process
         min_severity: Minimum severity to process ("low", "medium", "high", "critical")
         send_notifications: Whether to send Slack notifications
+        start_date: Start of analysis window (default: 30 days ago)
+        end_date: End of analysis window (default: now)
         
     Returns:
         List of diagnosis results
@@ -27,12 +31,28 @@ def run_batch_diagnosis(
     severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
     min_severity_level = severity_order.get(min_severity, 3)
     
+    # Default date range
+    if not end_date:
+        end_date = datetime.now()
+    if not start_date:
+        start_date = end_date - timedelta(days=30)
+    
+    # Format dates for state
+    start_date_str = start_date.strftime("%Y-%m-%d")
+    end_date_str = end_date.strftime("%Y-%m-%d")
+    
     # Get all anomalies
     print("📊 Loading data sources...")
+    print(f"📅 Analysis period: {start_date_str} to {end_date_str}")
+    
     marketing = get_marketing_data()
     influencer = get_influencer_data()
     
-    all_anomalies = marketing.get_anomalies() + influencer.get_anomalies()
+    # Get anomalies with date range
+    all_anomalies = (
+        marketing.get_anomalies(start_date=start_date, end_date=end_date) + 
+        influencer.get_anomalies(start_date=start_date, end_date=end_date)
+    )
     
     # Filter by severity
     filtered_anomalies = [
@@ -57,11 +77,14 @@ def run_batch_diagnosis(
         print(f"   Metric:    {anomaly['metric']}")
         print(f"   Severity:  {anomaly['severity'].upper()}")
         print(f"   Direction: {anomaly['direction']} ({anomaly.get('deviation_pct', 0):+.1f}%)")
+        print(f"   Detected:  {anomaly.get('detected_at', 'N/A')}")
         
-        # Run expedition with this specific anomaly
+        # Run expedition with this specific anomaly AND date range context
         result = run_expedition({
             "anomalies": [anomaly],
             "selected_anomaly": anomaly,
+            "analysis_start_date": start_date_str,
+            "analysis_end_date": end_date_str,
         })
         
         diagnosis_result = {
@@ -70,6 +93,10 @@ def run_batch_diagnosis(
             "proposed_actions": result.get("proposed_actions", []),
             "validation_passed": result.get("validation_passed", False),
             "historical_incidents": result.get("historical_incidents", []),
+            "analysis_period": {
+                "start": start_date_str,
+                "end": end_date_str,
+            },
             "timestamp": datetime.now().isoformat(),
         }
         
@@ -104,6 +131,11 @@ def print_batch_summary(results: list[dict]) -> None:
     
     validated = sum(1 for r in results if r["validation_passed"])
     
+    # Show analysis period if available
+    if results and results[0].get("analysis_period"):
+        period = results[0]["analysis_period"]
+        print(f"Analysis Period: {period['start']} to {period['end']}")
+    
     print(f"Total Processed: {len(results)}")
     print(f"Validated:       {validated}/{len(results)}")
     print()
@@ -129,9 +161,17 @@ def print_batch_summary(results: list[dict]) -> None:
 
 def generate_batch_report(results: list[dict], output_path: str = "batch_report.md") -> str:
     """Generate a markdown report from batch results."""
+    
+    # Get analysis period from first result
+    period_str = ""
+    if results and results[0].get("analysis_period"):
+        period = results[0]["analysis_period"]
+        period_str = f"\nAnalysis Period: {period['start']} to {period['end']}"
+    
     lines = [
         "# Expedition Batch Diagnosis Report",
         f"\nGenerated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        period_str,
         f"\nTotal Anomalies Processed: {len(results)}",
         "",
         "---",
@@ -148,6 +188,7 @@ def generate_batch_report(results: list[dict], output_path: str = "batch_report.
             "",
             f"**Severity:** {anomaly.get('severity', 'N/A').upper()}",
             f"**Direction:** {anomaly.get('direction', 'N/A')} ({anomaly.get('deviation_pct', 0):+.1f}%)",
+            f"**Detected At:** {anomaly.get('detected_at', 'N/A')}",
             f"**Validation:** {'✅ Passed' if r['validation_passed'] else '⚠️ Review Needed'}",
             "",
         ])
@@ -201,13 +242,33 @@ if __name__ == "__main__":
     parser.add_argument("--severity", type=str, default="low", choices=["low", "medium", "high", "critical"])
     parser.add_argument("--notify", action="store_true", help="Send Slack notifications")
     parser.add_argument("--report", type=str, help="Generate markdown report to file")
+    parser.add_argument("--start-date", type=str, help="Start date (YYYY-MM-DD)")
+    parser.add_argument("--end-date", type=str, help="End date (YYYY-MM-DD)")
     
     args = parser.parse_args()
+    
+    # Parse dates
+    start_date = None
+    end_date = None
+    
+    if args.start_date:
+        try:
+            start_date = datetime.strptime(args.start_date, "%Y-%m-%d")
+        except ValueError:
+            print(f"⚠️ Invalid start date format: {args.start_date}. Use YYYY-MM-DD")
+            
+    if args.end_date:
+        try:
+            end_date = datetime.strptime(args.end_date, "%Y-%m-%d")
+        except ValueError:
+            print(f"⚠️ Invalid end date format: {args.end_date}. Use YYYY-MM-DD")
     
     results = run_batch_diagnosis(
         max_anomalies=args.max,
         min_severity=args.severity,
         send_notifications=args.notify,
+        start_date=start_date,
+        end_date=end_date,
     )
     
     if args.report and results:

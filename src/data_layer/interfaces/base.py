@@ -43,15 +43,17 @@ class BaseDataSource(ABC):
     def get_anomalies(
         self,
         channel: str | None = None,
-        lookback_hours: int = 24,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         threshold_sigma: float = 2.0,
     ) -> list[dict[str, Any]]:
         """
-        Detect anomalies in recent data.
+        Detect anomalies within a date range.
         
         Args:
             channel: Specific channel or None for all
-            lookback_hours: How far back to check
+            start_date: Start of analysis window (for baseline calculation context)
+            end_date: End of analysis window (detect anomalies as of this date)
             threshold_sigma: Standard deviation threshold for anomaly
             
         Returns:
