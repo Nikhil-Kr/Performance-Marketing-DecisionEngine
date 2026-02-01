@@ -2,213 +2,398 @@
 
 **Automated Decision Engine for Performance Marketing**
 
-An AI-powered system that automatically detects marketing anomalies, diagnoses root causes using historical knowledge, and proposes remediation actions.
+An AI-powered system that automatically detects marketing anomalies, diagnoses root causes using historical knowledge, and proposes remediation actions across all marketing channels.
 
-![Architecture](docs/architecture.png)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**Repository:** [github.com/Nikhil-Kr/Performance-Marketing-DecisionEngine](https://github.com/Nikhil-Kr/Performance-Marketing-DecisionEngine)
+
+---
 
 ## 🎯 What It Does
 
-1. **Detects Anomalies** - Monitors all marketing channels for unexpected metric changes
-2. **Investigates Root Causes** - Uses specialized AI agents to analyze what went wrong
-3. **Retrieves Historical Context** - RAG-powered memory recalls similar past incidents
-4. **Generates Diagnosis** - Multi-persona explanations (Executive → Data Scientist)
-5. **Proposes Actions** - Creates executable JSON payloads for platform APIs
-6. **Validates Safety** - Triple-Lock Protocol prevents hallucinated recommendations
+1. **Detects Anomalies** — Monitors all marketing channels for unexpected metric changes (CPA spikes, ROAS drops, conversion collapses)
+2. **Investigates Root Causes** — Routes to specialized AI investigators (Paid Media, Influencer, Offline)
+3. **Retrieves Historical Context** — RAG-powered memory recalls similar past incidents and their resolutions
+4. **Enriches with Market Data** — Pulls competitor intelligence, MMM saturation curves, MTA attribution
+5. **Generates Multi-Persona Diagnosis** — Executive summary → Technical details (4 audience levels)
+6. **Proposes Aligned Actions** — LLM selects actions that match its own diagnosis (no keyword mismatch)
+7. **Validates Safety** — Triple-Lock Protocol prevents hallucinated recommendations
+8. **Simulates Impact** — 7-day projection charts show baseline vs. action scenarios
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Time-Travel Analysis** | Analyze anomalies as of any historical date |
+| **MMM Guardrails** | Blocks budget increases on saturated channels |
+| **MTA Comparison** | Shows Last-Click vs Data-Driven attribution |
+| **Competitor Intelligence** | Surfaces relevant competitor activity |
+| **Market Trends** | Google Trends overlay on performance charts |
+| **Impact Simulation** | Visual forecast of action outcomes |
+| **Batch Processing** | Process multiple anomalies with Slack notifications |
+| **Mock ↔ Production** | Switch data sources with one env variable |
+
+---
 
 ## 🚀 Quick Start
 
 ```bash
-# 1. Clone and enter directory
-git clone https://github.com/YOUR_USERNAME/expedition.git
-cd expedition
+# 1. Clone the repository
+git clone https://github.com/Nikhil-Kr/Performance-Marketing-DecisionEngine.git
+cd Performance-Marketing-DecisionEngine
 
-# 2. Run setup
+# 2. Run setup (creates venv, installs dependencies)
 make setup
 
-# 3. Generate mock data
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with your GCP project ID
+
+# 4. Authenticate with GCP (for Gemini API)
+gcloud auth application-default login
+
+# 5. Generate mock data
 make mock-data
 
-# 4. Initialize RAG knowledge base
+# 6. Initialize RAG knowledge base
 make init-rag
 
-# 5. Run the dashboard
+# 7. Run the dashboard
 make run
 ```
 
-Open http://localhost:8501 in your browser.
+Open **http://localhost:8501** in your browser.
+
+---
+
+## 📊 Supported Channels (15 Total)
+
+### Digital — Paid Search & Shopping
+- Google Search
+- Google Performance Max
+- Google Display
+- Google YouTube
+
+### Digital — Social
+- Meta Ads (Facebook/Instagram)
+- TikTok Ads
+- LinkedIn Ads
+
+### Digital — Programmatic & Affiliate
+- Programmatic (DV360, The Trade Desk)
+- Affiliate Networks
+
+### Offline
+- TV (Linear & CTV)
+- Podcast
+- Radio
+- Direct Mail
+- Out-of-Home (OOH)
+- Events
+
+### Creator Economy
+- Influencer Campaigns (CreatorIQ integration)
+
+---
+
+## 🏗️ Architecture
+
+### LangGraph Flow
+
+```
+┌──────────┐    ┌────────┐    ┌────────┐    ┌──────────────┐
+│ Preflight│───▶│ Detect │───▶│ Router │───▶│ Investigator │
+└──────────┘    └────────┘    └────────┘    └──────┬───────┘
+                                                   │
+                              ┌────────────────────┼────────────────────┐
+                              ▼                    ▼                    ▼
+                       ┌────────────┐      ┌────────────┐      ┌────────────┐
+                       │ Paid Media │      │ Influencer │      │  Offline   │
+                       └─────┬──────┘      └─────┬──────┘      └─────┬──────┘
+                             │                   │                   │
+                             └───────────────────┼───────────────────┘
+                                                 ▼
+┌──────────┐    ┌────────┐    ┌────────┐    ┌────────┐    ┌──────────┐
+│ Proposer │◀───│ Critic │◀───│Explainer│◀───│ Memory │◀───│(combines)│
+└──────────┘    └────────┘    └────────┘    └────────┘    └──────────┘
+```
+
+### Node Descriptions
+
+| Node | Purpose | Model Tier |
+|------|---------|------------|
+| **Preflight** | Validates data freshness | — |
+| **Detect** | Finds anomalies via z-score | — |
+| **Router** | Classifies channel type | Tier 1 (Flash) |
+| **Investigator** | Deep-dives into root cause | Tier 2 (Pro) |
+| **Memory** | RAG retrieval of past incidents | Embeddings |
+| **Explainer** | Synthesizes diagnosis + selects actions | Tier 2 (Pro) |
+| **Critic** | Triple-Lock validation | Tier 2 (Pro) |
+| **Proposer** | Formats actions for execution | — |
+
+---
 
 ## 📁 Project Structure
 
 ```
 expedition/
+├── app.py                    # Streamlit dashboard
+├── Makefile                  # All commands
+├── .env.example              # Configuration template
+│
 ├── src/
-│   ├── data_layer/           # Data abstraction (mock ↔ production)
+│   ├── graph.py              # LangGraph orchestration
+│   ├── batch.py              # Batch processing mode
+│   │
+│   ├── data_layer/           # Data abstraction
 │   │   ├── interfaces/       # Abstract base classes
 │   │   ├── mock/             # CSV-based mock data
-│   │   └── connectors/       # BigQuery, CreatorIQ (production)
+│   │   │   ├── marketing.py  # Channel performance
+│   │   │   ├── influencer.py # Creator campaigns
+│   │   │   ├── strategy.py   # MMM & MTA data
+│   │   │   └── market.py     # Competitor & trends
+│   │   └── connectors/       # Production (BigQuery, CreatorIQ)
 │   │
-│   ├── intelligence/         # LLM layer (Gemini)
-│   │   ├── models.py         # Tiered model access
+│   ├── intelligence/         # LLM layer
+│   │   ├── models.py         # Tiered Gemini access
 │   │   └── prompts/          # All LLM prompts
+│   │       ├── router.py
+│   │       ├── investigator.py
+│   │       ├── explainer.py  # Includes action catalog
+│   │       └── critic.py
 │   │
 │   ├── nodes/                # LangGraph nodes
-│   │   ├── preflight.py      # Data freshness check
-│   │   ├── router.py         # Routes to specialists
-│   │   ├── investigators/    # Paid media, Influencer
-│   │   ├── memory/           # RAG retrieval
-│   │   ├── explainer/        # Diagnosis synthesis
-│   │   ├── proposer/         # Action generation
-│   │   └── critic/           # Triple-Lock validation
+│   │   ├── preflight.py
+│   │   ├── router.py
+│   │   ├── investigators/
+│   │   │   ├── paid_media.py
+│   │   │   ├── influencer.py
+│   │   │   └── offline.py
+│   │   ├── memory/
+│   │   │   └── retriever.py  # ChromaDB RAG
+│   │   ├── explainer/
+│   │   │   └── synthesizer.py
+│   │   ├── critic/
+│   │   │   └── validator.py
+│   │   └── proposer/
+│   │       └── action_mapper.py
 │   │
-│   ├── action_layer/         # API execution (mock ↔ production)
+│   ├── action_layer/         # Execution layer
 │   │   ├── interfaces/       # Abstract executor
 │   │   ├── mock/             # Logs without executing
-│   │   └── connectors/       # Google/Meta/TikTok APIs
+│   │   └── connectors/       # Platform APIs
+│   │       ├── google_ads.py
+│   │       ├── meta_ads.py
+│   │       ├── tiktok_ads.py
+│   │       ├── linkedin_ads.py
+│   │       ├── programmatic.py
+│   │       ├── affiliate.py
+│   │       └── offline.py    # Slack-based notifications
 │   │
-│   ├── schemas/              # Pydantic models
-│   └── graph.py              # LangGraph definition
+│   ├── notifications/
+│   │   └── slack.py          # Slack webhook integration
+│   │
+│   ├── schemas/
+│   │   └── state.py          # Pydantic state models
+│   │
+│   └── utils/
+│       └── config.py         # Settings management
 │
 ├── data/
-│   ├── mock_csv/             # Generated mock data
+│   ├── mock_csv/             # Generated mock data (15 channels)
 │   ├── post_mortems/         # Historical incidents for RAG
 │   └── embeddings/           # ChromaDB persistence
 │
 ├── scripts/
-│   ├── generate_mock_data.py
-│   └── init_vector_store.py
+│   ├── generate_mock_data.py # Creates realistic mock data
+│   └── init_vector_store.py  # Initializes RAG embeddings
 │
-├── app.py                    # Streamlit dashboard
-└── Makefile                  # All commands
+└── tests/
+    └── test_expedition.py
 ```
 
-## 🔧 Configuration
+---
+
+## ⚙️ Configuration
 
 ### Environment Variables
 
 Copy `.env.example` to `.env` and configure:
 
 ```bash
-# For mock mode (default) - no GCP needed
+# ===========================================
+# LAYER MODES (mock or production)
+# ===========================================
 DATA_LAYER_MODE=mock
 ACTION_LAYER_MODE=mock
 
-# For production - requires GCP credentials
+# ===========================================
+# GOOGLE CLOUD / VERTEX AI
+# ===========================================
 GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_APPLICATION_CREDENTIALS=./credentials/sa-key.json
-DATA_LAYER_MODE=production
-ACTION_LAYER_MODE=production
+VERTEX_AI_LOCATION=us-central1
+
+# ===========================================
+# GEMINI MODELS (Tiered Intelligence)
+# ===========================================
+GEMINI_TIER1_MODEL=gemini-2.0-flash
+GEMINI_TIER2_MODEL=gemini-2.5-pro
+EMBEDDING_MODEL=text-embedding-004
+
+# ===========================================
+# NOTIFICATIONS
+# ===========================================
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+SLACK_CHANNEL_ALERTS=#marketing-alerts
+SLACK_CHANNEL_MEDIA_BUYING=#media-buying
+
+# ===========================================
+# PLATFORM CREDENTIALS (Production Only)
+# ===========================================
+# See .env.example for full list
 ```
 
 ### Tiered Intelligence
 
 | Tier | Model | Use Case | Cost |
 |------|-------|----------|------|
-| Tier 1 | gemini-2.0-flash | Routing, data fetching | Low |
-| Tier 2 | gemini-2.5-pro | Reasoning, diagnosis | High |
+| Tier 1 | gemini-2.0-flash | Routing, classification | Low |
+| Tier 2 | gemini-2.5-pro | Investigation, diagnosis, validation | Higher |
 
-## 🔄 Switching Mock → Production
+Models are configurable via `.env` — upgrade to Gemini 3 when available.
 
-The entire system is designed for easy swapping:
+---
+
+## 🔄 Mock → Production
+
+The entire system is designed for seamless environment switching:
 
 ```bash
 # In .env, change these two lines:
 DATA_LAYER_MODE=production
 ACTION_LAYER_MODE=production
 
-# Then implement:
-# 1. src/data_layer/connectors/bigquery.py (your BigQuery tables)
-# 2. src/action_layer/connectors/*.py (your API credentials)
+# Then implement your connectors:
+# 1. src/data_layer/connectors/bigquery.py (your data warehouse)
+# 2. src/action_layer/connectors/*.py (add API credentials)
 ```
 
-All nodes, prompts, and the dashboard work unchanged.
+**All nodes, prompts, and the dashboard work unchanged.**
 
-## 📊 Supported Channels
+### What Changes Per Mode
 
-### Paid Media
-- Google Search, PMax, Display, YouTube
-- Meta (Facebook/Instagram)
-- TikTok
-- LinkedIn
-- Programmatic
+| Component | Mock Mode | Production Mode |
+|-----------|-----------|-----------------|
+| Channel Data | CSV files | BigQuery tables |
+| Influencer Data | CSV files | CreatorIQ API |
+| Action Execution | Logged only | Real API calls |
+| Offline Actions | Logged only | Slack alerts to media team |
 
-### Influencer
-- CreatorIQ integration
-- Platform-specific metrics
-- Causal/incremental analysis
-
-### Offline
-- Direct mail
-- TV, Radio
-- Out-of-home
-- Events
-
-## 🧠 Architecture
-
-### LangGraph Flow
-
-```
-Pre-Flight → Detect → Router → Investigator → Memory → Explainer → Critic → Proposer
-                         ↓
-                    ┌────┴────┐
-                    │         │
-               Paid Media  Influencer
-```
-
-### Key Design Patterns
-
-1. **Data Abstraction** - Interfaces with mock/production implementations
-2. **Tiered Intelligence** - Right-size models for each task
-3. **RAG Memory** - ChromaDB for semantic search of past incidents
-4. **Triple-Lock Protocol** - Critic validates before proposing actions
-5. **Human-in-the-Loop** - Actions require approval before execution
+---
 
 ## 🛡️ Triple-Lock Protocol
 
-The Critic node applies three validation checks:
+The Critic node applies three validation checks before any action is proposed:
 
-1. **Data Grounding** - Every claim must reference specific data
-2. **Evidence Verification** - Conclusions must follow from evidence
-3. **Hallucination Check** - Flag claims beyond provided data
+1. **Data Grounding** — Every claim must reference specific metrics
+2. **Evidence Verification** — Conclusions must logically follow from evidence
+3. **Hallucination Check** — Flags claims that go beyond provided data
 
 Actions are blocked if hallucination risk > 50%.
 
+---
+
 ## 📈 Dashboard Features
 
-- **Anomaly Dashboard** - Real-time status of all channels
-- **Investigation View** - Deep dive into specific anomalies
-- **Multi-Persona Diagnosis** - Switch between Executive/Technical views
-- **Action Approval** - Review and approve proposed changes
-- **Historical Context** - View similar past incidents
+### Investigation View
+- **Anomaly Summary** — Metric, severity, deviation %
+- **Channel Performance** — Historical trend with anomaly highlighted
+- **Market Overlay** — Google Trends comparison
+- **Competitor Activity** — Recent competitive moves
 
-## 🧪 Testing
+### Strategy Context
+- **MMM Guardrails** — Saturation status and recommendation
+- **MTA Comparison** — Attribution model differences
+
+### Diagnosis
+- **Multi-Persona Views** — Executive, Director, Marketer, Data Scientist
+- **Historical Context** — Similar past incidents from RAG
+- **Confidence Score** — Model's certainty in diagnosis
+
+### Actions
+- **Proposed Actions** — With risk level and estimated impact
+- **Impact Simulation** — 7-day projection chart
+- **Approval Flow** — Review before execution
+
+---
+
+## 🧪 Testing & Development
 
 ```bash
 # Run all tests
 make test
 
-# Run with coverage
-pytest tests/ -v --cov=src
+# Run with verbose output
+pytest tests/ -v
 
-# Test specific module
-pytest tests/unit/test_data_layer.py
+# Lint code
+make lint
+
+# Format code
+make format
+
+# Test Slack connection
+make test-slack
 ```
+
+---
+
+## 📋 Available Make Commands
+
+```bash
+make help           # Show all commands
+make setup          # Full setup (venv, deps, .env)
+make mock-data      # Generate mock marketing data
+make init-rag       # Initialize ChromaDB vector store
+make run            # Run Streamlit dashboard
+make run-batch      # Process anomalies in batch mode
+make run-batch-notify  # Batch mode with Slack notifications
+make test-slack     # Test Slack webhook
+make test           # Run tests
+make lint           # Lint code
+make clean          # Remove generated files
+make quickstart     # Full setup + run (one command)
+```
+
+---
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Run `make lint` and `make test`
-5. Submit a pull request
-
-## 📝 License
-
-MIT License - see LICENSE file
-
-## 🙏 Acknowledgments
-
-Built for GoFundMe's Growth Science team.
+5. Commit (`git commit -m 'Add amazing feature'`)
+6. Push (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ---
 
-**Questions?** Open an issue or reach out to the Decision Science team.
+## 📄 License
+
+MIT License — see [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Built for marketing decision science teams who need automated anomaly detection and diagnosis at scale.
+
+---
+
+**Questions or Issues?** Open an issue on GitHub or reach out to the maintainers.
