@@ -1,84 +1,178 @@
 """
-Action Layer Factory - Returns mock or production executors.
+Action Layer - Executes proposed actions on marketing platforms.
+
+This module provides a clean abstraction for action execution:
+- Mock mode: Logs actions without executing (for development/testing)
+- Production mode: Calls real platform APIs
 
 Usage:
     from src.action_layer import get_executor
     
-    executor = get_executor("google_ads")  # Returns based on ACTION_LAYER_MODE
+    executor = get_executor("meta_ads")
     result = executor.execute(action_payload)
-    
-To switch from mock to production:
-    1. Set ACTION_LAYER_MODE=production in .env
-    2. Set the appropriate API credentials
-    3. That's it - all your code works unchanged
 """
-import os
-from functools import lru_cache
+from typing import TYPE_CHECKING
 
-from .interfaces.base import BaseActionExecutor
+if TYPE_CHECKING:
+    from .interfaces.base import BaseActionExecutor
 
 
-@lru_cache()
-def get_executor(platform: str = "mock") -> BaseActionExecutor:
+def get_executor(platform: str) -> "BaseActionExecutor":
     """
-    Factory function for action executors.
+    Factory function to get the appropriate executor for a platform.
+    
+    In mock mode: Always returns MockActionExecutor (logs without executing)
+    In production mode: Returns platform-specific executor with real API calls
     
     Args:
-        platform: Platform name or "mock" for mock executor
+        platform: Platform identifier (e.g., "google_ads", "meta_ads", "tv")
         
     Returns:
-        Appropriate executor based on ACTION_LAYER_MODE
+        BaseActionExecutor implementation for the platform
+        
+    Raises:
+        ValueError: If platform is unknown in production mode
+        
+    Example:
+        >>> executor = get_executor("meta_ads")
+        >>> result = executor.execute({
+        ...     "action_type": "budget_change",
+        ...     "operation": "decrease",
+        ...     "parameters": {"adjustment_pct": 20}
+        ... })
     """
-    mode = os.getenv("ACTION_LAYER_MODE", "mock")
+    from src.utils.config import settings
     
-    if mode == "mock":
+    # Normalize platform name
+    platform = platform.lower().strip()
+    
+    # Mock mode - always use mock executor
+    if settings.action_layer_mode == "mock":
         from .mock.executor import MockActionExecutor
         return MockActionExecutor()
     
-    elif mode == "production":
-        return _get_production_executor(platform)
-    
-    else:
-        raise ValueError(f"Unknown ACTION_LAYER_MODE: {mode}")
-
-
-def _get_production_executor(platform: str) -> BaseActionExecutor:
-    """Get production executor for a specific platform."""
-    
+    # Production mode - route to real executors
+    # Digital advertising platforms
     if platform == "google_ads":
         from .connectors.google_ads import GoogleAdsExecutor
         return GoogleAdsExecutor()
     
-    elif platform in ["meta_ads", "meta"]:
+    elif platform == "meta_ads":
         from .connectors.meta_ads import MetaAdsExecutor
         return MetaAdsExecutor()
     
-    elif platform in ["tiktok_ads", "tiktok"]:
+    elif platform == "tiktok_ads":
         from .connectors.tiktok_ads import TikTokAdsExecutor
         return TikTokAdsExecutor()
     
+    elif platform == "linkedin_ads":
+        from .connectors.linkedin_ads import LinkedInAdsExecutor
+        return LinkedInAdsExecutor()
+    
+    elif platform in ("programmatic", "dsp", "dv360", "ttd"):
+        from .connectors.programmatic import ProgrammaticExecutor
+        return ProgrammaticExecutor()
+    
+    elif platform in ("affiliate", "affiliate_network"):
+        from .connectors.affiliate import AffiliateExecutor
+        return AffiliateExecutor()
+    
+    elif platform == "creatoriq":
+        from .connectors.creatoriq import CreatorIQExecutor
+        return CreatorIQExecutor()
+    
+    # Offline channels - route to notification-based executor
+    elif platform in ("tv", "tv_buying", "podcast", "podcast_network", "radio", 
+                      "radio_buying", "direct_mail", "ooh", "ooh_vendor", 
+                      "events", "events_team"):
+        from .connectors.offline import OfflineExecutor
+        return OfflineExecutor(channel=platform)
+    
+    # Notification-only platforms
+    elif platform in ("slack", "email", "notification"):
+        from .connectors.offline import OfflineExecutor
+        return OfflineExecutor(channel="notification")
+    
     else:
-        raise ValueError(f"No production executor for platform: {platform}")
+        raise ValueError(
+            f"Unknown platform: {platform}. "
+            f"Available platforms: google_ads, meta_ads, tiktok_ads, linkedin_ads, "
+            f"programmatic, affiliate, creatoriq, tv, podcast, radio, direct_mail, ooh, events"
+        )
 
 
 def execute_action(action: dict) -> dict:
     """
-    Convenience function to execute an action.
+    Convenience function to execute a single action.
     
-    Automatically routes to the correct executor based on the action's platform.
+    Automatically routes to the correct executor based on action["platform"].
+    
+    Args:
+        action: Action payload with platform, action_type, operation, parameters
+        
+    Returns:
+        Execution result dict with status, message, and details
     """
-    platform = action.get("platform", "mock")
+    platform = action.get("platform", "unknown")
     executor = get_executor(platform)
     return executor.execute(action)
 
 
 def preview_action(action: dict) -> dict:
-    """Convenience function to preview an action."""
-    platform = action.get("platform", "mock")
+    """
+    Preview what an action would do without executing.
+    
+    Args:
+        action: Action payload to preview
+        
+    Returns:
+        Preview dict with expected changes and impact
+    """
+    platform = action.get("platform", "unknown")
     executor = get_executor(platform)
     return executor.preview(action)
 
 
-def clear_cache():
-    """Clear cached executors (useful for testing)."""
-    get_executor.cache_clear()
+def validate_action(action: dict) -> tuple[bool, str]:
+    """
+    Validate an action before execution.
+    
+    Args:
+        action: Action payload to validate
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    platform = action.get("platform", "unknown")
+    executor = get_executor(platform)
+    return executor.validate(action)
+
+
+# Platform registry for documentation/introspection
+SUPPORTED_PLATFORMS = {
+    # Digital advertising
+    "google_ads": "Google Ads (Search, Display, YouTube, PMax)",
+    "meta_ads": "Meta Ads (Facebook, Instagram)",
+    "tiktok_ads": "TikTok Ads",
+    "linkedin_ads": "LinkedIn Ads",
+    "programmatic": "Programmatic DSP (DV360, The Trade Desk)",
+    "affiliate": "Affiliate Networks (Impact, CJ, Rakuten)",
+    "creatoriq": "CreatorIQ (Influencer management)",
+    
+    # Offline (notification-based)
+    "tv": "TV Media Buying",
+    "podcast": "Podcast Networks",
+    "radio": "Radio Buying",
+    "direct_mail": "Direct Mail Vendors",
+    "ooh": "Out-of-Home Vendors",
+    "events": "Events Team",
+}
+
+
+__all__ = [
+    "get_executor",
+    "execute_action",
+    "preview_action",
+    "validate_action",
+    "SUPPORTED_PLATFORMS",
+]
