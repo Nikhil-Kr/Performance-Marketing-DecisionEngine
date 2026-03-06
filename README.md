@@ -148,6 +148,8 @@ When GCP credentials are unavailable, the system falls back to MockLLM automatic
 
 ## 🧠 Architecture
 
+![Expedition Architecture](ExpeditionArchitecture.png)
+
 ### LangGraph Flow
 
 ```

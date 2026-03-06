@@ -114,11 +114,14 @@ def check_grounding(diagnosis: dict, result: dict) -> dict:
     evidence = result.get("investigation_evidence") or {}
     anomaly = result.get("selected_anomaly") or {}
 
-    for val in evidence.values():
-        if isinstance(val, str):
-            evidence_parts.append(val)
-        elif isinstance(val, dict):
-            evidence_parts.append(json.dumps(val))
+    if isinstance(evidence, str):
+        evidence_parts.append(evidence)
+    elif isinstance(evidence, dict):
+        for val in evidence.values():
+            if isinstance(val, str):
+                evidence_parts.append(val)
+            elif isinstance(val, dict):
+                evidence_parts.append(json.dumps(val))
 
     # Always include the anomaly's own numeric fields as grounded sources
     for key in ("current_value", "expected_value", "deviation_pct", "z_score"):
