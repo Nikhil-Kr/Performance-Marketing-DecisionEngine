@@ -116,8 +116,8 @@ ACTION_LAYER_MODE=production
 
 | Tier | Model | Use Case | Cost |
 |------|-------|----------|------|
-| Tier 1 | gemini-2.0-flash | Routing, investigation, action mapping | Low |
-| Tier 2 | gemini-2.5-pro | Diagnosis synthesis, validation, chat | High |
+| Tier 1 | gemini-3.1-flash-lite-preview | Routing, investigation, action mapping | Low |
+| Tier 2 | gemini-3.1-pro-preview | Diagnosis synthesis, validation, chat | High |
 
 When GCP credentials are unavailable, the system falls back to MockLLM automatically.
 

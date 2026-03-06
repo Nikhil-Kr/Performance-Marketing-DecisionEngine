@@ -20,8 +20,8 @@
 #     vertex_ai_location: str = "us-central1"
     
 #     # Models (Tiered Intelligence)
-#     gemini_tier1_model: str = "gemini-2.0-flash"  # Fast, cheap
-#     gemini_tier2_model: str = "gemini-2.5-pro"    # Smart, expensive
+#     gemini_tier1_model: str = "gemini-3.1-flash-lite-preview"  # Fast, cheap
+#     gemini_tier2_model: str = "gemini-3.1-pro-preview"         # Smart, expensive
 #     embedding_model: str = "text-embedding-004"
     
 #     # Data Layer
@@ -117,14 +117,14 @@ class Settings(BaseSettings):
     # GOOGLE CLOUD / VERTEX AI
     # ===========================================
     google_cloud_project: str = Field(default="", description="GCP Project ID")
-    vertex_ai_location: str = Field(default="us-central1", description="Vertex AI region")
+    vertex_ai_location: str = Field(default="global", description="Vertex AI region")
     google_application_credentials: str = Field(default="", description="Path to service account key")
     
     # ===========================================
     # GEMINI MODELS
     # ===========================================
-    gemini_tier1_model: str = Field(default="gemini-2.0-flash", description="Fast model for routing")
-    gemini_tier2_model: str = Field(default="gemini-2.5-pro", description="Powerful model for reasoning")
+    gemini_tier1_model: str = Field(default="gemini-3.1-flash-lite-preview", description="Fast model for routing")
+    gemini_tier2_model: str = Field(default="gemini-3.1-pro-preview", description="Powerful model for reasoning")
     embedding_model: str = Field(default="text-embedding-004", description="Embedding model")
     
     # ===========================================
