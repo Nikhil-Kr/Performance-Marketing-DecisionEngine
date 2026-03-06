@@ -48,7 +48,7 @@ Router
 2. Dashboard loads → Shows detected anomalies across all channels
 3. User (optionally) selects a historical date range in the sidebar → stored as `analysis_start_date` / `analysis_end_date` in state
 4. User clicks **Investigate** on an anomaly
-5. LangGraph executes the full pipeline:
+5. LangGraph executes the full pipeline via `stream_expedition()` — each node completion updates the `st.status()` progress indicator in real time:
    - **preflight** → Validates data freshness; cross-channel correlation scoring
    - **detect** → Finds anomalies, selects highest severity
    - **router** → Routes to paid_media, influencer, or offline investigator
@@ -94,6 +94,17 @@ Classifies the anomaly's channel and routes to the right specialist. Rule-based 
 - `paid_media` → google_search, google_pmax, google_display, google_youtube, meta_ads, tiktok_ads, linkedin_ads, programmatic, affiliate
 - `influencer` → influencer_campaigns, influencer
 - `offline` → direct_mail, tv, radio, ooh, events, podcast
+
+---
+
+### Shared Investigator Utilities
+**File:** `src/nodes/investigators/utils.py`
+
+Common functions used by all three investigators:
+- `extract_analysis_dates(state, anomaly)` — Parses `analysis_start_date` / `analysis_end_date` from state with fallbacks to `anomaly["detected_at"]` then `datetime.now()`
+- `fetch_market_context(channel, analysis_end, analysis_days)` — Fetches competitor signals, market trends, MMM, and MTA in one call
+- `format_competitors()`, `format_trends()`, `format_strategy()` — Format market data for prompt inclusion
+- `format_correlation_context()` — Format cross-channel correlations for prompts
 
 ---
 
@@ -425,3 +436,14 @@ class ExpeditionState(TypedDict):
 | RAG returning future incidents | No temporal filter in ChromaDB query | Restored `where={"date_int": {"$lte": cutoff}}` in `retriever.py` |
 | Impact simulator ignored historical recovery data | `get_recovery_curve()` not called | Restored call in `render_impact_simulation()` in `app.py` |
 | Slack not notified on action reject | Regression in V7 | Restored Slack reject notification in `app.py` Tab 3 |
+| `analysis_start_date`/`analysis_end_date` silently dropped | Missing from `ExpeditionState` TypedDict (LangGraph drops unknown keys) | Added fields to state schema + default values in `graph.py` |
+| Explainer had no analysis period context | Dates not passed to explainer/offline prompts | Added `{analysis_start}`/`{analysis_end}` to explainer + offline prompt templates |
+| Dollar signs rendered as LaTeX in UI | Streamlit markdown interprets `$` as math delimiters | Added `_esc()` helper to escape `$` → `\$` at all display points |
+| Chat assistant showed raw content blocks | `.content` accessed directly instead of via `extract_content()` | Replaced `response.content` with `extract_content(response)` in chat + evals |
+| MMM guardrail silently bypassed on error | `except` block returned unfiltered actions | Changed to fail-safe: block budget increases on exception |
+| RAG cutoff date included time component | `state.get("analysis_end_date")` returned datetime object | Normalized to `YYYY-MM-DD` string in `retriever.py` |
+| `request_timeout` wrong param for ChatVertexAI | Should be `timeout` | Fixed in `models.py` |
+| No structured logging | All output via `print()` | Added `src/utils/logging.py` with timestamped module-scoped loggers |
+| No LLM timeout | Calls could hang indefinitely | Added configurable `timeout` param (default 120s) to `ChatVertexAI` |
+| Duplicate utility code across investigators | Date parsing, market fetch, format helpers copied 3x | Extracted to `src/nodes/investigators/utils.py` |
+| 15-30s spinner with no progress detail | Single `st.spinner` around `run_expedition()` | Switched to `graph.stream()` + `st.status()` with per-node progress labels |

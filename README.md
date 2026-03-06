@@ -58,7 +58,7 @@ expedition/
 │   ├── nodes/                # LangGraph nodes
 │   │   ├── preflight.py      # Data freshness + cross-channel correlation
 │   │   ├── router.py         # Routes to specialist investigators
-│   │   ├── investigators/    # Paid media, Influencer, Offline
+│   │   ├── investigators/    # Paid media, Influencer, Offline + shared utils
 │   │   ├── memory/           # RAG retrieval + feedback storage
 │   │   ├── explainer/        # Diagnosis synthesis (retry-aware)
 │   │   ├── critic/           # Triple-Lock validation
@@ -72,6 +72,9 @@ expedition/
 │   ├── feedback/             # Persistent feedback + audit logging
 │   ├── notifications/        # Slack webhook alerts
 │   ├── schemas/              # Pydantic models + LangGraph state
+│   ├── utils/
+│   │   ├── config.py         # Pydantic settings (env vars, model names)
+│   │   └── logging.py        # Structured logging (timestamped, per-module)
 │   └── graph.py              # LangGraph workflow definition
 │
 ├── data/
@@ -86,7 +89,8 @@ expedition/
 │   └── init_vector_store.py  # Initializes ChromaDB with post-mortems
 │
 ├── tests/
-│   └── test_expedition.py
+│   ├── test_expedition.py
+│   └── evals/                # LLM-graded evaluation suite
 │
 ├── app.py                    # Streamlit dashboard
 └── Makefile                  # All commands
@@ -181,7 +185,9 @@ See [Expedition_Flow.md](Expedition_Flow.md) for the detailed node-by-node walkt
 7. **LLM Action Mapping** - Proposer uses LLM to select from template library
 8. **MMM Guardrail** - Blocks budget increases when marginal ROAS < 1.0 (data from `strategy.get_mmm_guardrails()`)
 9. **ROOT_CAUSE_ACTION_MAP** - Explainer infers root cause category; Proposer only offers actions valid for that category
-10. **Time-Travel Analysis** - UI date picker flows into state; all investigators and RAG use the selected date as their data cutoff
+10. **Time-Travel Analysis** - UI date picker flows into state; all investigators, explainer, and RAG use the selected date as their data cutoff
+11. **Structured Logging** - All nodes use `src/utils/logging.py` with timestamped, module-scoped log levels (no `print()`)
+12. **LLM Timeouts** - Configurable timeout on all LLM calls (default 120s) to prevent indefinite hangs
 
 ## 🛡️ Triple-Lock Protocol
 
@@ -200,6 +206,7 @@ If validation fails:
 
 - **Anomaly Dashboard** - Real-time status cards for all channels
 - **Cross-Channel Correlations** - Related anomalies highlighted
+- **Pipeline Progress** - Step-by-step status indicator during investigation (via `graph.stream()`)
 - **Investigation View** - Deep dive with trend charts
 - **Multi-Persona Diagnosis** - Toggle Executive/Marketer/Data Scientist views
 - **Critic Retry Indicator** - Shows when diagnosis was refined
