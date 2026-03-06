@@ -323,8 +323,9 @@ def eval_llm_judge(scenarios: list[dict] | None = None) -> dict:
                 {"role": "system", "content": DIAGNOSIS_GRADER_SYSTEM},
                 {"role": "user", "content": grader_prompt},
             ]
+            from src.intelligence.models import extract_content
             response = grader.invoke(messages)
-            raw = response.content.strip()
+            raw = extract_content(response).strip()
 
             # Parse JSON from response (handle markdown fences)
             clean = raw.replace("```json", "").replace("```", "").strip()

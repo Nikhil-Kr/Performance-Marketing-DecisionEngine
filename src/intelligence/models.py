@@ -7,6 +7,9 @@ import os
 from pathlib import Path
 
 from src.utils.config import settings
+from src.utils.logging import get_logger
+
+logger = get_logger("models")
 
 TierType = Literal["tier1", "tier2"]
 
@@ -53,16 +56,16 @@ def get_llm(tier: TierType = "tier1"):
     )
     
     if not can_use_vertex:
-        print(f"  ℹ️ Using MockLLM (tier: {tier})")
+        logger.info("Using MockLLM (tier: %s)", tier)
         return MockLLM(tier)
-    
+
     try:
         model_name = (
-            settings.gemini_tier1_model if tier == "tier1" 
+            settings.gemini_tier1_model if tier == "tier1"
             else settings.gemini_tier2_model
         )
-        
-        print(f"  🤖 Using Vertex AI: {model_name}")
+
+        logger.info("Using Vertex AI: %s (timeout: %ds)", model_name, settings.llm_request_timeout)
         
         return ChatVertexAI(
             model=model_name,
@@ -70,10 +73,11 @@ def get_llm(tier: TierType = "tier1"):
             location=settings.vertex_ai_location,
             temperature=0.1 if tier == "tier1" else 0.3,
             max_tokens=1024 if tier == "tier1" else 4096,
+            timeout=settings.llm_request_timeout,
         )
     except Exception as e:
-        print(f"  ⚠️ Vertex AI failed: {e}")
-        print(f"  ℹ️ Falling back to MockLLM")
+        logger.error("Vertex AI failed: %s", e, exc_info=True)
+        logger.info("Falling back to MockLLM")
         return MockLLM(tier)
 
 
@@ -118,7 +122,7 @@ def get_llm_safe(tier: TierType = "tier1"):
             return MockLLM(tier)
         return llm
     except Exception as e:
-        print(f"  ⚠️ LLM error: {e}")
+        logger.error("LLM error: %s", e, exc_info=True)
         return MockLLM(tier)
 
 

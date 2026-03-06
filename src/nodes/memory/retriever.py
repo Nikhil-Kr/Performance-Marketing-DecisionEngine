@@ -1,141 +1,3 @@
-# """Memory Node - Retrieves historical context using RAG."""
-# from typing import Any
-# from datetime import datetime
-# import chromadb
-# from chromadb.config import Settings
-# from pathlib import Path
-# from src.schemas.state import ExpeditionState
-# from src.intelligence.models import get_embeddings
-
-# CHROMA_DIR = Path("data/embeddings")
-# COLLECTION_NAME = "post_mortems"
-
-# class VertexEmbeddingWrapper:
-#     def __init__(self, embeddings):
-#         self.embeddings = embeddings
-#     def embed_query(self, text):
-#         return self.embeddings.embed_query(text)
-
-# def retrieve_historical_context(state: ExpeditionState) -> dict:
-#     print("\n📚 Retrieving Historical Context (RAG)...")
-    
-#     # Defensive checks
-#     if not isinstance(state, dict):
-#         return {"historical_incidents": [], "rag_context": "State error."}
-
-#     anomaly = state.get("selected_anomaly")
-#     current_summary = str(state.get("investigation_summary") or "")
-#     current_evidence = str(state.get("investigation_evidence") or "")
-
-#     if not anomaly:
-#         return {"historical_incidents": [], "rag_context": "No anomaly selected."}
-    
-#     # Contextual Query
-#     query = f"{anomaly.get('channel', '')} {anomaly.get('metric', '')} {anomaly.get('direction', '')} {anomaly.get('root_cause', '')}"
-    
-#     # DETERMINE CUTOFF DATE FOR RAG FILTERING
-#     # Priority: state's analysis_end_date > anomaly's detected_at > now
-#     cutoff_date_str = None
-    
-#     # Try state's analysis_end_date first
-#     if state.get("analysis_end_date"):
-#         cutoff_date_str = state["analysis_end_date"]
-#     # Fallback to anomaly's detected_at
-#     elif anomaly.get("detected_at"):
-#         cutoff_date_str = anomaly["detected_at"]
-#     # Final fallback to today
-#     else:
-#         cutoff_date_str = datetime.now().strftime("%Y-%m-%d")
-    
-#     # Convert string date to integer (YYYYMMDD) for ChromaDB comparison
-#     try:
-#         cutoff_date_int = int(cutoff_date_str.replace('-', ''))
-#     except (ValueError, AttributeError):
-#         # Fallback to a future date if parsing fails so we don't filter everything out
-#         cutoff_date_int = 20991231
-    
-#     print(f"  📅 RAG cutoff date: {cutoff_date_str} (only incidents before this)")
-    
-#     if not CHROMA_DIR.exists():
-#         return {"historical_incidents": [], "rag_context": "Knowledge base offline."}
-
-#     client = chromadb.PersistentClient(path=str(CHROMA_DIR), settings=Settings(anonymized_telemetry=False))
-    
-#     raw_embeddings = get_embeddings()
-#     embedding_fn = None
-#     if raw_embeddings:
-#         embedding_fn = VertexEmbeddingWrapper(raw_embeddings)
-#         print("  🧠 RAG: Using Vertex AI Embeddings (768 dim)")
-#     else:
-#         print("  ⚠️ RAG: Using default embeddings")
-    
-#     try:
-#         # Load collection without embedding function (we will embed query manually)
-#         collection = client.get_collection(name=COLLECTION_NAME)
-        
-#         # Query with Integer Date Filtering
-#         # ChromaDB Where clause: date_int <= cutoff_date_int
-#         where_filter = {"date_int": {"$lte": cutoff_date_int}}
-        
-#         if embedding_fn:
-#             query_vec = embedding_fn.embed_query(query)
-#             results = collection.query(query_embeddings=[query_vec], n_results=3, where=where_filter)
-#         else:
-#             results = collection.query(query_texts=[query], n_results=3, where=where_filter)
-        
-#         incidents = []
-#         context_parts = []
-        
-#         if results and results.get("metadatas") and results["metadatas"][0]:
-#             metas = results["metadatas"][0]
-#             distances = results["distances"][0] if results.get("distances") else [0]*len(metas)
-            
-#             for i, meta in enumerate(metas):
-#                 similarity = 1.0 / (1.0 + distances[i])
-                
-#                 incidents.append({
-#                     "incident_id": meta.get("incident_id"),
-#                     "date": meta.get("date"),
-#                     "channel": meta.get("channel"),
-#                     "anomaly_type": meta.get("anomaly_type"),
-#                     "root_cause": meta.get("root_cause"),
-#                     "resolution": meta.get("resolution"),
-#                     "similarity_score": round(similarity, 2)
-#                 })
-#                 context_parts.append(f"- {meta.get('date')}: {meta.get('anomaly_type')} in {meta.get('channel')}. Fix: {meta.get('resolution')}")
-            
-#             rag_text = "\n".join(context_parts)
-#             print(f"  📖 Found {len(incidents)} historical incidents (prior to {cutoff_date_str})")
-            
-#             return {
-#                 "historical_incidents": incidents,
-#                 "rag_context": rag_text,
-#                 "investigation_summary": f"{current_summary}\n\n## Historical Context (RAG)\n{rag_text}",
-#                 "investigation_evidence": f"{current_evidence}\n\n## Historical Context (RAG)\n{rag_text}"
-#             }
-            
-#     except Exception as e:
-#         print(f"  ❌ RAG failed: {e}")
-#         # Return empty context on failure to allow pipeline to proceed
-#         return {
-#             "historical_incidents": [], 
-#             "rag_context": "Search error.",
-#             "investigation_summary": current_summary,
-#             "investigation_evidence": current_evidence
-#         }
-
-#     return {"historical_incidents": [], "rag_context": "No matches found."}
-
-## <--------- V3 - store_resolution + get_recovery_curve, No Temporal Filtering (Previous Active) --------->
-
-# ## <--------- Updated - 3/3 --------->
-# V3 added store_resolution() and get_recovery_curve() (kept in V4 below) but removed
-# the ChromaDB where={"date_int": {"$lte": cutoff_date_int}} clause, causing RAG to
-# return incidents from AFTER the analysis date when analyzing historical anomalies.
-# The query ran without any date filter: collection.query(n_results=5) — no where clause.
-
-## <--------- V4 - RAG Temporal Filtering Restored (P5) --------->
-
 """
 Memory Node - Retrieves historical context using RAG.
 
@@ -150,6 +12,9 @@ import chromadb
 from chromadb.config import Settings
 from src.schemas.state import ExpeditionState
 from src.intelligence.models import get_embeddings
+from src.utils.logging import get_logger
+
+logger = get_logger("memory")
 
 # Paths
 CHROMA_DIR = Path("data/embeddings")
@@ -172,7 +37,7 @@ def get_rag_collection(client):
     try:
         return client.get_collection(name=COLLECTION_NAME)
     except Exception as e:
-        print(f"  ❌ Failed to load collection: {e}")
+        logger.error("Failed to load collection: %s", e)
         return None
 
 
@@ -184,7 +49,7 @@ def retrieve_historical_context(state: ExpeditionState) -> dict:
     analysis_end_date or anomaly's detected_at). Prevents time-travel contamination
     where future incidents could influence historical analysis.
     """
-    print("\n📚 Retrieving Historical Context (RAG)...")
+    logger.info("Retrieving Historical Context (RAG)...")
 
     if not isinstance(state, dict):
         return {"historical_incidents": [], "rag_context": "State error."}
@@ -204,10 +69,14 @@ def retrieve_historical_context(state: ExpeditionState) -> dict:
 
     # --- P5: Determine cutoff date for temporal filtering ---
     # Priority: state's analysis_end_date > anomaly's detected_at > today
-    cutoff_date_str = (
+    raw_cutoff = (
         state.get("analysis_end_date")
         or anomaly.get("detected_at")
         or datetime.now().strftime("%Y-%m-%d")
+    )
+    # Normalize to "YYYY-MM-DD" string (handles datetime objects)
+    cutoff_date_str = (
+        raw_cutoff.strftime("%Y-%m-%d") if hasattr(raw_cutoff, "strftime") else str(raw_cutoff)[:10]
     )
 
     # Convert YYYY-MM-DD to integer YYYYMMDD for ChromaDB $lte comparison
@@ -216,10 +85,10 @@ def retrieve_historical_context(state: ExpeditionState) -> dict:
     except (ValueError, AttributeError):
         cutoff_date_int = 20991231  # Safety: don't filter out everything if parse fails
 
-    print(f"  📅 RAG cutoff: {cutoff_date_str} (only incidents before this date)")
+    logger.info("RAG cutoff: %s (only incidents before this date)", cutoff_date_str)
 
     if not CHROMA_DIR.exists():
-        print("  ⚠️ Vector store not found. Run 'make init-rag'")
+        logger.warning("Vector store not found. Run 'make init-rag'")
         incidents = _csv_keyword_search(anomaly, cutoff_date_str)
         return {
             "historical_incidents": incidents,
@@ -236,9 +105,9 @@ def retrieve_historical_context(state: ExpeditionState) -> dict:
     embedding_fn = None
     if raw_embeddings:
         embedding_fn = VertexEmbeddingWrapper(raw_embeddings)
-        print("  🧠 RAG: Using Vertex AI Embeddings (768 dim)")
+        logger.info("RAG: Using Vertex AI Embeddings (768 dim)")
     else:
-        print("  ⚠️ RAG: Using default embeddings (384 dim)")
+        logger.info("RAG: Using default embeddings (384 dim)")
 
     collection = get_rag_collection(client)
     if not collection:
@@ -267,10 +136,10 @@ def retrieve_historical_context(state: ExpeditionState) -> dict:
             )
 
         incidents = _parse_chroma_results(results)
-        print(f"  ✅ Found {len(incidents)} similar incidents (prior to {cutoff_date_str})")
+        logger.info("Found %d similar incidents (prior to %s)", len(incidents), cutoff_date_str)
 
     except Exception as e:
-        print(f"  ⚠️ Vector search failed: {e}")
+        logger.error("Vector search failed: %s", e, exc_info=True)
         incidents = _csv_keyword_search(anomaly, cutoff_date_str)
 
     rag_context = _format_incidents_as_context(incidents)
@@ -330,7 +199,7 @@ def _csv_keyword_search(anomaly: dict, cutoff_date_str: str = None) -> list:
         matches = matches.drop(columns=["_match_count"])
         return matches.to_dict("records")
     except Exception as e:
-        print(f"  ⚠️ CSV search failed: {e}")
+        logger.error("CSV search failed: %s", e, exc_info=True)
         return []
 
 
@@ -357,7 +226,7 @@ def store_resolution(anomaly: dict, diagnosis: dict, actions: list) -> bool:
     Write an approved diagnosis back to the knowledge base.
     Called when user clicks Approve on an action.
     """
-    print("  💾 Storing resolution to knowledge base...")
+    logger.info("Storing resolution to knowledge base...")
     try:
         new_incident = {
             "incident_id": f"INC-{datetime.now().year}-{datetime.now().strftime('%m%d%H%M')}",
@@ -377,11 +246,11 @@ def store_resolution(anomaly: dict, diagnosis: dict, actions: list) -> bool:
             if not file_exists:
                 writer.writeheader()
             writer.writerow(new_incident)
-        print(f"  ✅ Stored as {new_incident['incident_id']}")
+        logger.info("Stored as %s", new_incident['incident_id'])
         _add_to_vector_store(new_incident)
         return True
     except Exception as e:
-        print(f"  ⚠️ Failed to store resolution: {e}")
+        logger.error("Failed to store resolution: %s", e, exc_info=True)
         return False
 
 
@@ -418,9 +287,9 @@ def _add_to_vector_store(incident: dict) -> None:
                 documents=[doc_text],
                 metadatas=[{k: v for k, v in incident.items() if isinstance(v, (str, int, float, bool))}],
             )
-        print(f"  🧠 Added to vector store: {incident['incident_id']}")
+        logger.info("Added to vector store: %s", incident['incident_id'])
     except Exception as e:
-        print(f"  ⚠️ Vector store addition failed (non-critical): {e}")
+        logger.warning("Vector store addition failed (non-critical): %s", e)
 
 
 # ============================================================================
@@ -458,5 +327,5 @@ def get_recovery_curve(anomaly_type: str, channel: str) -> dict | None:
             "similar_resolutions": matches["resolution"].head(3).tolist(),
         }
     except Exception as e:
-        print(f"  ⚠️ Recovery curve lookup failed: {e}")
+        logger.error("Recovery curve lookup failed: %s", e, exc_info=True)
         return None

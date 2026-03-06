@@ -3,6 +3,9 @@ from src.schemas.state import ExpeditionState
 from src.data_layer import get_marketing_data
 from src.intelligence.models import get_llm_safe, extract_content
 from src.intelligence.prompts.router import ROUTER_SYSTEM_PROMPT, format_router_prompt
+from src.utils.logging import get_logger
+
+logger = get_logger("router")
 
 
 # Channel category mapping
@@ -24,12 +27,12 @@ def route_to_investigator(state: ExpeditionState) -> dict:
     - influencer: Creator/influencer campaigns
     - offline: Direct mail, TV, events
     """
-    print("\n🔀 Running Router...")
+    logger.info("Running Router...")
     
     anomaly = state.get("selected_anomaly")
     
     if not anomaly:
-        print("  ⚠️ No anomaly to route")
+        logger.warning("No anomaly to route")
         return {
             "channel_category": None,
             "current_node": "router",
@@ -49,7 +52,7 @@ def route_to_investigator(state: ExpeditionState) -> dict:
         # Fall back to LLM for unknown channels
         category = _llm_route(anomaly)
     
-    print(f"  📍 Routed to: {category.upper()}")
+    logger.info("Routed to: %s", category.upper())
     
     return {
         "channel_category": category,
@@ -79,7 +82,7 @@ def _llm_route(anomaly: dict) -> str:
             return "paid_media"  # Default
             
     except Exception as e:
-        print(f"  ⚠️ LLM routing failed: {e}, defaulting to paid_media")
+        logger.error("LLM routing failed: %s, defaulting to paid_media", e, exc_info=True)
         return "paid_media"
 
 
