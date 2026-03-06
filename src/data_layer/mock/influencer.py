@@ -97,8 +97,9 @@ class MockInfluencerData(BaseDataSource):
         if not start_date:
             start_date = end_date - timedelta(days=30)
             
-        end_ts = pd.Timestamp(end_date)
-        start_ts = pd.Timestamp(start_date)
+        # Normalize to end-of-day so posts with intraday timestamps are included
+        end_ts = pd.Timestamp(end_date).normalize() + pd.Timedelta(days=1, seconds=-1)
+        start_ts = pd.Timestamp(start_date).normalize()
         
         # Filter: Only look at posts within a small window of the end date
         # (e.g. last 3 days leading up to end_date)

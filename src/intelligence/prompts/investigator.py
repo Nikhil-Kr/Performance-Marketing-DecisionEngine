@@ -318,7 +318,24 @@
 #         attribution_data=attribution_data,
 #     )
 
-## <--------- Updated - 3/3 --------->
+## <--------- V3 - Cross-Channel Correlation Context (Previous Active) --------->
+
+# ## <--------- Updated - 3/3 --------->
+# """Prompts for Investigator nodes (Paid Media, Influencer, & Offline)."""
+#
+# PAID_MEDIA_SYSTEM_PROMPT = ... (cross-channel context, no competitor/MMM/MTA/date params)
+# PAID_MEDIA_INVESTIGATION_PROMPT = ... (no analysis period, no competitor_intel, no strategy_context)
+#
+# def format_paid_media_prompt(anomaly, performance_summary, campaign_breakdown, correlation_context="") -> str:
+#     ...
+#
+# def format_influencer_prompt(anomaly, campaign_data, creator_history, attribution_data, correlation_context="") -> str:
+#     ...
+#
+# OFFLINE prompts and format_offline_prompt were new additions in V3 — kept in V4 below.
+
+## <--------- V4 - Market + Strategy Intelligence + Date Range Restored --------->
+
 """Prompts for Investigator nodes (Paid Media, Influencer, & Offline)."""
 
 PAID_MEDIA_SYSTEM_PROMPT = """You are a senior performance marketing analyst at GoFundMe.
@@ -327,18 +344,24 @@ Your job is to investigate anomalies in paid media channels (Google, Meta, TikTo
 and identify potential root causes.
 
 Always consider:
-1. External factors (competition, seasonality, market events)
-2. Platform changes (algorithm updates, policy changes)
-3. Internal factors (budget changes, creative fatigue, targeting drift)
+1. Internal factors (budget changes, creative fatigue, targeting drift)
+2. External factors (competitor bidding, market demand changes)
+3. Strategic context (MMM saturation, MTA vs Last-Click discrepancies)
 4. Technical issues (tracking problems, attribution delays)
 5. Cross-channel signals (if other channels show similar patterns, consider shared root causes)
 
-Provide evidence-based analysis. Be specific about what data supports each hypothesis."""
+Provide evidence-based analysis. Use Multi-Touch Attribution (MTA) data to verify if performance
+drops are real or just attribution artifacts. Be specific about what data supports each hypothesis."""
 
 
 PAID_MEDIA_INVESTIGATION_PROMPT = """Investigate this paid media anomaly:
 
+## Analysis Context
+- **Analysis Period:** {analysis_start} to {analysis_end}
+- Focus your investigation on data and events within this time window.
+
 ## Anomaly Details
+- Date: {date}
 - Channel: {channel}
 - Metric: {metric}
 - Current Value: {current_value}
@@ -347,17 +370,26 @@ PAID_MEDIA_INVESTIGATION_PROMPT = """Investigate this paid media anomaly:
 - Direction: {direction}
 - Severity: {severity}
 
-## Recent Channel Performance (Last 7 Days)
+## Recent Channel Performance (within analysis period)
 {performance_summary}
 
 ## Campaign Breakdown
 {campaign_breakdown}
+
+## Competitive Intelligence
+{competitor_intel}
+
+## Market Trends
+{market_trends}
+
+## Strategic Context (MMM & MTA)
+{strategy_context}
 {correlation_context}
 
 ## Your Task
 1. List 3-5 potential root causes, ranked by likelihood
 2. For each cause, explain what evidence supports or contradicts it
-3. Recommend what additional data would help confirm the root cause
+3. Analyze External Factors (Competitors) and Strategic Context (MTA/MMM)
 4. Suggest immediate actions to mitigate impact
 
 Format your response as:
@@ -366,6 +398,10 @@ Format your response as:
 1. [Most Likely Cause] - [Confidence: High/Medium/Low]
    - Evidence: ...
    - Counter-evidence: ...
+
+### Strategic Insights
+- MTA Analysis: ...
+- MMM Saturation: ...
 
 ### Recommended Immediate Actions
 - ...
@@ -389,7 +425,12 @@ You understand:
 
 INFLUENCER_INVESTIGATION_PROMPT = """Investigate this influencer marketing anomaly:
 
+## Analysis Context
+- **Analysis Period:** {analysis_start} to {analysis_end}
+- Focus your investigation on data and events within this time window.
+
 ## Anomaly Details
+- Date: {date}
 - Metric: {metric}
 - Entity: {entity}
 - Current Value: {current_value}
@@ -428,7 +469,7 @@ Format your response as:
 
 
 # ============================================================================
-# NEW: Offline Channel Prompts (Improvement #5)
+# Offline Channel Prompts (added in V3, preserved in V4)
 # ============================================================================
 
 OFFLINE_SYSTEM_PROMPT = """You are a senior marketing analyst at GoFundMe specializing in offline and traditional media channels.
@@ -499,10 +540,18 @@ def format_paid_media_prompt(
     anomaly: dict,
     performance_summary: str,
     campaign_breakdown: str,
+    competitor_intel: str = "No competitor data available.",
+    market_trends: str = "No market trend data available.",
+    strategy_context: str = "No strategy context available.",
+    analysis_start: str = "N/A",
+    analysis_end: str = "N/A",
     correlation_context: str = "",
 ) -> str:
-    """Format paid media investigation prompt."""
+    """Format paid media investigation prompt with full context (P3 + P4)."""
     return PAID_MEDIA_INVESTIGATION_PROMPT.format(
+        analysis_start=analysis_start,
+        analysis_end=analysis_end,
+        date=anomaly.get("detected_at", "Unknown"),
         channel=anomaly.get("channel", "unknown"),
         metric=anomaly.get("metric", "unknown"),
         current_value=anomaly.get("current_value", "N/A"),
@@ -512,6 +561,9 @@ def format_paid_media_prompt(
         severity=anomaly.get("severity", "unknown"),
         performance_summary=performance_summary,
         campaign_breakdown=campaign_breakdown,
+        competitor_intel=competitor_intel,
+        market_trends=market_trends,
+        strategy_context=strategy_context,
         correlation_context=correlation_context,
     )
 
@@ -521,10 +573,15 @@ def format_influencer_prompt(
     campaign_data: str,
     creator_history: str,
     attribution_data: str,
+    analysis_start: str = "N/A",
+    analysis_end: str = "N/A",
     correlation_context: str = "",
 ) -> str:
-    """Format influencer investigation prompt."""
+    """Format influencer investigation prompt with analysis period context (P4)."""
     return INFLUENCER_INVESTIGATION_PROMPT.format(
+        analysis_start=analysis_start,
+        analysis_end=analysis_end,
+        date=anomaly.get("detected_at", "Unknown"),
         metric=anomaly.get("metric", "unknown"),
         entity=anomaly.get("entity", anomaly.get("channel", "unknown")),
         current_value=anomaly.get("current_value", "N/A"),

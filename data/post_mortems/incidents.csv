@@ -1,41 +1,221 @@
 incident_id,date,channel,anomaly_type,severity,root_cause,resolution,similarity_score
-INC-2026-100,2026-02-25,meta_ads,Zero Conversions,medium,GTM container rollback accidentally removed purchase event.,Switched to 7-day click attribution window for reporting.,0.76
-INC-2025-101,2025-10-15,google_search,CPA Spike,high,New market entrant bidding heavily on our exact match keywords.,Adjusted target CPA to defend impression share against BrandX.,0.88
-INC-2025-102,2025-07-14,google_pmax,Spend Surge,high,Bot traffic spike on unknown placements drove up spend.,Added placement exclusions and tightened location settings.,0.85
-INC-2025-103,2025-05-04,tv,Reach Drop,high,Frequency cap issues on Connected TV (CTV) inventory.,Used spot logs for interim reporting while awaiting Nielsen.,0.87
-INC-2025-104,2025-03-27,meta_ads,Zero Conversions,high,iOS update caused 48-hour reporting delay on conversions.,Generated new CAPI token and updated server config.,0.93
-INC-2025-105,2025-05-06,ooh,Low Impressions,critical,Geofencing radius was set too small for attribution.,Received credit for non-functional screen days.,0.86
-INC-2025-106,2025-11-21,linkedin_ads,High CPL,medium,"Audience size too small (<50k), leading to high frequency.",Added seniority exclusions to target decision makers only.,0.85
-INC-2025-107,2025-04-30,ooh,Low Impressions,critical,Digital OOH screen malfunctioned for 4 days.,Expanded geofence radius from 100m to 500m.,0.76
-INC-2025-108,2025-06-03,ooh,Low Impressions,medium,Digital OOH screen malfunctioned for 4 days.,Negotiated replacement locations with vendor.,0.93
-INC-2025-109,2025-12-10,direct_mail,Response Rate Drop,medium,Mailing list had high percentage of outdated addresses.,Shifted future mailings to avoid peak postal periods.,0.75
-INC-2025-110,2025-04-01,linkedin_ads,High CPL,critical,"Job title targeting too broad, capturing entry-level roles.",Expanded audience using lookalikes of customer list.,0.72
-INC-2025-111,2025-07-21,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page after deployment #1204.,Re-installed GTM container and added automated pixel monitoring.,0.78
-INC-2026-112,2026-02-07,meta_ads,Zero Conversions,medium,iOS update caused 48-hour reporting delay on conversions.,Re-installed GTM container and added automated pixel monitoring.,0.88
-INC-2025-113,2025-08-27,google_search,CPA Spike,critical,Q4 seasonal competition drove up CPCs by 35%.,Increased brand CPC bids by 20% and filed trademark complaint.,0.81
-INC-2025-114,2025-11-07,influencer,Fraud Alert,medium,Sudden spike in followers from non-target geo (click farm).,Terminated contract for breach of authenticity clause.,0.75
-INC-2025-115,2025-03-18,google_pmax,Spend Surge,critical,Algorithm aggressively targeted mobile app placements.,Added placement exclusions and tightened location settings.,0.82
-INC-2026-116,2026-01-27,tv,Reach Drop,critical,Measurement lag from Nielsen reporting caused data gap.,Applied strict frequency capping across CTV publishers.,0.71
-INC-2025-117,2025-06-26,tv,Reach Drop,medium,Frequency cap issues on Connected TV (CTV) inventory.,Applied strict frequency capping across CTV publishers.,0.87
-INC-2025-118,2025-04-24,affiliate,Conversion Drop,medium,Fraudulent leads detected from new sub-affiliate network.,Renegotiated placement with top partner.,0.79
-INC-2025-119,2025-05-29,podcast,Low Engagement,medium,Promo code mentioned on air didn't match backend.,Shifted future ad buys to mid-week release schedules.,0.89
-INC-2025-120,2025-11-19,meta_ads,Zero Conversions,critical,"Server-side API token expired, causing event loss.",Re-installed GTM container and added automated pixel monitoring.,0.9
-INC-2026-121,2026-02-02,tv,Reach Drop,medium,Primetime spots preempted by breaking news coverage.,Used spot logs for interim reporting while awaiting Nielsen.,0.79
-INC-2025-122,2025-09-13,direct_mail,Response Rate Drop,critical,Creative execution (envelope design) performed poorly in testing.,A/B tested new envelope designs with stronger hook.,0.93
-INC-2026-123,2026-01-02,influencer,Fraud Alert,high,Sudden spike in followers from non-target geo (click farm).,Implemented vetting tool to audit audience quality pre-hire.,0.79
-INC-2025-124,2025-09-09,direct_mail,Response Rate Drop,high,Creative execution (envelope design) performed poorly in testing.,Shifted future mailings to avoid peak postal periods.,0.86
-INC-2025-125,2025-07-11,direct_mail,Response Rate Drop,high,Postal delays due to holiday volume caused late delivery.,Shifted future mailings to avoid peak postal periods.,0.78
-INC-2026-126,2026-01-01,tv,Reach Drop,medium,Primetime spots preempted by breaking news coverage.,Received make-goods for preempted spots next week.,0.91
-INC-2025-127,2025-10-25,tv,Reach Drop,critical,Frequency cap issues on Connected TV (CTV) inventory.,Applied strict frequency capping across CTV publishers.,0.89
-INC-2025-128,2025-10-22,podcast,Low Engagement,critical,Host read script was truncated during recording.,Requested re-read/make-good for next episode.,0.88
-INC-2025-129,2025-07-22,podcast,Low Engagement,medium,Episode released on holiday weekend with low downloads.,Created vanity URL redirect to fix promo code error.,0.85
-INC-2025-130,2025-10-22,linkedin_ads,High CPL,high,"Job title targeting too broad, capturing entry-level roles.",Expanded audience using lookalikes of customer list.,0.87
-INC-2026-131,2026-02-07,meta_ads,Zero Conversions,medium,Tracking pixel fell off checkout page after deployment #1204.,Switched to 7-day click attribution window for reporting.,0.75
-INC-2025-132,2025-11-15,influencer,Fraud Alert,high,Sudden spike in followers from non-target geo (click farm).,Implemented vetting tool to audit audience quality pre-hire.,0.78
-INC-2025-133,2025-03-17,meta_ads,Low CTR,high,Creative fatigue. Ad frequency exceeded 8.0.,Re-uploaded video assets and cleared cache.,0.79
-INC-2025-134,2025-03-05,ooh,Low Impressions,critical,Construction blocked visibility of 3 billboard locations.,Received credit for non-functional screen days.,0.77
-INC-2025-135,2025-09-07,podcast,Low Engagement,critical,Promo code mentioned on air didn't match backend.,Requested re-read/make-good for next episode.,0.73
-INC-2025-136,2025-08-12,influencer,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Implemented vetting tool to audit audience quality pre-hire.,0.93
-INC-2026-137,2026-02-06,affiliate,Conversion Drop,critical,Fraudulent leads detected from new sub-affiliate network.,Renegotiated placement with top partner.,0.95
-INC-2026-138,2026-02-19,meta_ads,Zero Conversions,medium,"Server-side API token expired, causing event loss.",Switched to 7-day click attribution window for reporting.,0.81
-INC-2026-139,2026-01-02,google_pmax,Spend Surge,high,Uncapped budget allowed PMax to spend 300% of daily average.,Excluded mobile app categories and gaming sites.,0.82
+INC-2020-238,2020-02-27,meta_ads,Low CTR,medium,"iOS 17 link tracking stripping UTMs, inflating CPC in reporting.",Re-uploaded video assets and cleared cache.,0.91
+INC-2020-286,2020-03-06,meta_ads,Low CTR,high,Audience saturation in 'Lookalike 1%' audience.,Refreshed creative assets and implemented frequency capping.,0.82
+INC-2020-301,2020-03-15,meta_ads,Zero Conversions,medium,"Server-side API token expired, causing event loss.",Generated new CAPI token and updated server config.,0.87
+INC-2020-195,2020-03-24,influencer_campaigns,Fraud Alert,medium,Creator's audience audit revealed 60% fake followers.,Terminated contract for breach of authenticity clause.,0.79
+INC-2020-235,2020-03-25,podcast,Low Engagement,high,Host read script was truncated during recording.,Created vanity URL redirect to fix promo code error.,0.94
+INC-2020-222,2020-03-27,direct_mail,Response Rate Drop,critical,Mailing list had high percentage of outdated addresses.,Ran NCOA update on mailing list before next drop.,0.93
+INC-2020-242,2020-04-27,linkedin_ads,High CPL,high,LinkedIn Audience Network delivering low-quality clicks.,Disabled Audience Network to focus on feed placements.,0.85
+INC-2020-212,2020-04-29,linkedin_ads,High CPL,critical,LinkedIn Audience Network delivering low-quality clicks.,Disabled Audience Network to focus on feed placements.,0.84
+INC-2020-183,2020-05-09,google_search,CPA Spike,medium,Q4 seasonal competition drove up CPCs by 35%.,Increased brand CPC bids by 20% and filed trademark complaint.,0.81
+INC-2020-292,2020-05-31,direct_mail,Response Rate Drop,medium,Mail arriving after crisis resolved; donor motivation had faded.,Added real-time crisis messaging insert to in-flight mail pieces.,0.83
+INC-2020-306,2020-06-20,meta_ads,Low CTR,high,"iOS 17 link tracking stripping UTMs, inflating CPC in reporting.",Refreshed creative assets and implemented frequency capping.,0.86
+INC-2020-276,2020-07-03,google_pmax,Spend Surge,critical,Asset group rotation optimized for volume over value during crisis period.,Added placement exclusions and tightened location settings.,0.81
+INC-2020-304,2020-07-10,google_search,Donation Surge Mis-Attribution,critical,BLM fundraising wave caused organic/paid bleed in attribution.,Added 'crisis_period' annotation flag to all reports during surge.,0.92
+INC-2020-115,2020-07-12,direct_mail,Response Rate Drop,medium,Postal delays during holiday peak caused late delivery.,A/B tested new envelope designs with stronger urgency hook.,0.81
+INC-2020-305,2020-07-25,meta_ads,Low CTR,high,Broken video asset rendering as black screen in feed.,Re-uploaded video assets and cleared cache.,0.94
+INC-2020-100,2020-07-30,google_search,Donation Surge Mis-Attribution,medium,Ukraine crisis donation spike misattributed to new brand campaign.,Created separate campaign for crisis keywords to isolate performance.,0.82
+INC-2020-317,2020-08-24,linkedin_ads,High CPL,medium,LinkedIn Audience Network delivering low-quality clicks.,Shifted budget to Q3/Q4 when corporate giving peaks.,0.92
+INC-2020-206,2020-09-02,google_pmax,Tracking Break During COVID,medium,GA4 migration during Q4 2021 caused 10-day data gap.,Re-deployed tags via server-side GTM with 24h monitoring.,0.82
+INC-2020-214,2020-09-17,direct_mail,Response Rate Drop,critical,Mail arriving after crisis resolved; donor motivation had faded.,A/B tested new envelope designs with stronger urgency hook.,0.86
+INC-2020-294,2020-09-17,ooh,Low Impressions,medium,Geofencing radius set too small for attribution.,Shifted OOH budget to digital for duration of lockdown.,0.73
+INC-2020-245,2020-10-26,influencer_campaigns,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Terminated contract for breach of authenticity clause.,0.78
+INC-2020-231,2020-12-02,ooh,Low Impressions,high,Construction blocked visibility of 3 billboard locations.,Received credit for non-functional screen days.,0.83
+INC-2020-315,2020-12-13,google_pmax,Spend Surge,medium,Uncapped budget allowed PMax to spend 300% of daily average.,Implemented strict daily spend caps and tROAS targets.,0.95
+INC-2020-107,2020-12-23,events,Events Channel Collapse,high,COVID lockdown: all in-person fundraising events cancelled.,Switched virtual platform from Zoom to Hopin with backup stream.,0.77
+INC-2020-127,2020-12-23,events,Events Channel Collapse,medium,Virtual event platform technical failure caused 80% drop-off.,Reallocated events budget to digital channels for Q2 2020.,0.78
+INC-2020-134,2020-12-28,meta_ads,Budget Misallocation During Crisis,critical,Budget auto-reallocation shifted funds away from best-performing crisis campaign.,Submitted account verification for fundraising allowlist.,0.93
+INC-2021-271,2021-01-04,google_pmax,Tracking Break During COVID,critical,iOS 14.5 release coincided with peak COVID donation period; masked conversions.,Backfilled conversions using order database export.,0.75
+INC-2021-272,2021-01-15,google_pmax,Tracking Break During COVID,medium,Server migration during COVID lockdown caused 3-day tag firing failure.,Ran parallel UA/GA4 for 60 days to validate data parity.,0.94
+INC-2021-181,2021-01-29,direct_mail,Response Rate Drop,medium,Mailing list had high percentage of outdated addresses.,Added real-time crisis messaging insert to in-flight mail pieces.,0.75
+INC-2021-159,2021-01-30,google_search,CPA Spike,high,Competitor 'BrandX' aggressive bidding on donation/fundraising keywords.,Paused broad match and switched to exact/phrase during election.,0.85
+INC-2021-308,2021-02-10,programmatic,IVT / Bot Traffic,medium,DSP algorithm expanded to new low-quality SSP partners.,Implemented post-bid IVT scoring with automatic credit back.,0.78
+INC-2021-179,2021-02-11,google_search,CPA Spike,high,Smart bidding algorithm overcorrected after iOS privacy changes.,Increased brand CPC bids by 20% and filed trademark complaint.,0.82
+INC-2021-300,2021-02-17,programmatic,IVT / Bot Traffic,medium,Bot traffic spike: IVT rate jumped from 4% to 48% in 72 hours.,Added IP exclusion lists for known data center ranges.,0.76
+INC-2021-150,2021-02-23,affiliate,Conversion Drop,critical,Coupon code leakage to discount aggregator sites lowered AOV.,Invalidated leaked codes and issued exclusive partner links.,0.76
+INC-2021-172,2021-03-06,programmatic,IVT / Bot Traffic,critical,Bot traffic spike: IVT rate jumped from 4% to 48% in 72 hours.,Added IP exclusion lists for known data center ranges.,0.86
+INC-2021-282,2021-03-11,influencer_campaigns,Fraud Alert,high,Creator's audience audit revealed 60% fake followers.,Terminated contract for breach of authenticity clause.,0.8
+INC-2021-108,2021-03-23,google_pmax,Spend Surge,high,Algorithm aggressively targeted mobile app placements.,Implemented strict daily spend caps and tROAS targets.,0.87
+INC-2021-156,2021-04-02,google_pmax,Tracking Break During COVID,medium,Server migration during COVID lockdown caused 3-day tag firing failure.,Re-deployed tags via server-side GTM with 24h monitoring.,0.89
+INC-2021-220,2021-04-07,google_search,Donation Surge Mis-Attribution,medium,BLM fundraising wave caused organic/paid bleed in attribution.,Created separate campaign for crisis keywords to isolate performance.,0.87
+INC-2021-193,2021-04-13,direct_mail,Response Rate Drop,high,Creative execution (envelope design) performed poorly vs control.,Shifted future mailings to avoid peak postal periods.,0.83
+INC-2021-154,2021-04-30,google_search,CPA Spike,critical,New entrant bidding heavily on our exact match keywords.,Launched defensive brand campaign with aggressive Top IS target.,0.74
+INC-2021-239,2021-04-30,programmatic,IVT / Bot Traffic,high,DSP algorithm expanded to new low-quality SSP partners.,Implemented post-bid IVT scoring with automatic credit back.,0.75
+INC-2021-173,2021-05-03,google_pmax,Spend Surge,medium,Algorithm aggressively targeted mobile app placements.,Added negative IP lists and enabled click fraud protection.,0.87
+INC-2021-268,2021-05-08,linkedin_ads,High CPL,medium,LinkedIn Audience Network delivering low-quality clicks.,Shifted budget to Q3/Q4 when corporate giving peaks.,0.88
+INC-2021-303,2021-05-09,podcast,Low Engagement,medium,Promo code mentioned on air didn't match backend system.,Rotated to new podcast network with fresher audience.,0.95
+INC-2021-224,2021-05-14,google_search,Donation Surge Mis-Attribution,medium,Turkey earthquake search surge conflated with paid campaign performance.,Created separate campaign for crisis keywords to isolate performance.,0.7
+INC-2021-217,2021-05-15,podcast,Low Engagement,critical,Episode released on holiday weekend with low downloads.,Shifted future ad buys to mid-week release schedules.,0.88
+INC-2021-175,2021-05-17,meta_ads,Budget Misallocation During Crisis,critical,MMM model recommended reducing Meta spend during Ukraine period (model hadn't seen crisis data).,Submitted account verification for fundraising allowlist.,0.82
+INC-2021-309,2021-05-18,linkedin_ads,High CPL,medium,"Job title targeting too broad, capturing entry-level roles.",Shifted budget to Q3/Q4 when corporate giving peaks.,0.89
+INC-2021-167,2021-05-21,ooh,Low Impressions,critical,COVID lockdown: zero foot traffic at all OOH locations.,Negotiated replacement locations with vendor.,0.73
+INC-2021-139,2021-05-23,programmatic,IVT / Bot Traffic,medium,Invalid traffic from data center IPs in non-target geos.,Implemented post-bid IVT scoring with automatic credit back.,0.8
+INC-2021-152,2021-06-21,meta_ads,Low CTR,medium,Creative fatigue: ad frequency exceeded 8.0.,Re-uploaded video assets and cleared cache.,0.78
+INC-2021-269,2021-06-21,direct_mail,Response Rate Drop,medium,Creative execution (envelope design) performed poorly vs control.,Ran NCOA update on mailing list before next drop.,0.83
+INC-2021-144,2021-07-08,events,Events Channel Collapse,high,Venue capacity restrictions limited event ROI by 60%.,Reallocated events budget to digital channels for Q2 2020.,0.77
+INC-2021-230,2021-07-11,events,Events Channel Collapse,high,COVID lockdown: all in-person fundraising events cancelled.,Switched virtual platform from Zoom to Hopin with backup stream.,0.86
+INC-2021-153,2021-07-23,google_search,Donation Surge Mis-Attribution,high,Crisis-driven direct traffic inflating conversion rates vs actual ad performance.,Paused paid search bidding during organic surge to reduce wasted spend.,0.88
+INC-2021-250,2021-08-03,google_pmax,Tracking Break During COVID,medium,iOS 14.5 release coincided with peak COVID donation period; masked conversions.,Re-deployed tags via server-side GTM with 24h monitoring.,0.71
+INC-2021-221,2021-08-16,influencer_campaigns,Fraud Alert,critical,Sudden spike in followers from non-target geo (click farm).,Required audience demographics report before contract signing.,0.79
+INC-2021-121,2021-08-18,programmatic,IVT / Bot Traffic,high,Bot traffic spike: IVT rate jumped from 4% to 48% in 72 hours.,Added IP exclusion lists for known data center ranges.,0.7
+INC-2021-288,2021-08-29,events,Events Channel Collapse,high,Virtual event platform technical failure caused 80% drop-off.,Switched virtual platform from Zoom to Hopin with backup stream.,0.73
+INC-2021-237,2021-09-03,influencer_campaigns,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Implemented Modash/HypeAuditor vetting before next hire.,0.94
+INC-2021-109,2021-09-08,programmatic,IVT / Bot Traffic,critical,DSP algorithm expanded to new low-quality SSP partners.,Implemented post-bid IVT scoring with automatic credit back.,0.71
+INC-2021-207,2021-09-08,podcast,Low Engagement,medium,Episode released on holiday weekend with low downloads.,Rotated to new podcast network with fresher audience.,0.78
+INC-2021-312,2021-09-12,podcast,Low Engagement,high,Podcast audience overlap too high with existing donors; no new reach.,Created vanity URL redirect to fix promo code error.,0.9
+INC-2021-273,2021-09-27,podcast,Low Engagement,medium,Podcast audience overlap too high with existing donors; no new reach.,Requested re-read/make-good for next episode.,0.82
+INC-2021-228,2021-10-18,meta_ads,Low CTR,medium,Headline 'Free Shipping' no longer resonating post-COVID.,Refreshed creative assets and implemented frequency capping.,0.81
+INC-2021-116,2021-10-20,affiliate,Conversion Drop,high,Fraudulent leads detected from new sub-affiliate network.,Invalidated leaked codes and issued exclusive partner links.,0.91
+INC-2021-117,2021-10-22,linkedin_ads,High CPL,high,"Job title targeting too broad, capturing entry-level roles.",Expanded audience using lookalikes of corporate donor list.,0.95
+INC-2021-185,2021-11-03,direct_mail,Response Rate Drop,high,Mail arriving after crisis resolved; donor motivation had faded.,Added real-time crisis messaging insert to in-flight mail pieces.,0.78
+INC-2021-174,2021-11-22,meta_ads,Low CTR,high,Creative fatigue: ad frequency exceeded 8.0.,Tested new emotional hook messaging aligned to active crisis.,0.78
+INC-2021-114,2021-12-04,direct_mail,Response Rate Drop,medium,Creative execution (envelope design) performed poorly vs control.,Shifted future mailings to avoid peak postal periods.,0.79
+INC-2021-283,2021-12-04,google_search,CPA Spike,medium,Smart bidding algorithm overcorrected after iOS privacy changes.,Temporarily increased budget caps to capture holiday demand.,0.87
+INC-2021-135,2021-12-17,google_pmax,Tracking Break During COVID,critical,GA4 migration during Q4 2021 caused 10-day data gap.,Backfilled conversions using order database export.,0.84
+INC-2022-180,2022-01-03,google_search,CPA Spike,critical,Q4 seasonal competition drove up CPCs by 35%.,Paused broad match and switched to exact/phrase during election.,0.78
+INC-2022-248,2022-01-04,meta_ads,Zero Conversions,critical,"Server-side API token expired, causing event loss.",Restored previous GTM version and verified checkout firing.,0.82
+INC-2022-279,2022-01-16,affiliate,Conversion Drop,high,Sub-affiliate network injecting cookie stuffing on checkout.,Renegotiated placement fee with top partner.,0.8
+INC-2022-160,2022-01-26,tv,Reach Drop,high,Measurement lag from Nielsen reporting caused data gap.,Received make-goods for preempted spots next week.,0.74
+INC-2022-281,2022-02-05,ooh,Low Impressions,high,Digital OOH screen malfunctioned for 4 days.,Received credit for non-functional screen days.,0.89
+INC-2022-163,2022-02-23,tv,Reach Drop,critical,Measurement lag from Nielsen reporting caused data gap.,Applied strict frequency capping across CTV publishers.,0.7
+INC-2022-157,2022-03-15,meta_ads,Zero Conversions,critical,Tracking pixel fell off checkout page after deployment #1204.,Re-installed GTM container and added automated pixel monitoring.,0.83
+INC-2022-136,2022-03-27,linkedin_ads,High CPL,medium,"Job title targeting too broad, capturing entry-level roles.",Shifted budget to Q3/Q4 when corporate giving peaks.,0.84
+INC-2022-203,2022-03-30,ooh,Low Impressions,medium,COVID lockdown: zero foot traffic at all OOH locations.,Shifted OOH budget to digital for duration of lockdown.,0.86
+INC-2022-290,2022-04-04,podcast,Low Engagement,high,Episode released on holiday weekend with low downloads.,Rotated to new podcast network with fresher audience.,0.78
+INC-2022-208,2022-04-13,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Implemented strict daily spend caps and tROAS targets.,0.86
+INC-2022-102,2022-04-18,google_pmax,Spend Surge,high,Algorithm aggressively targeted mobile app placements.,Implemented strict daily spend caps and tROAS targets.,0.83
+INC-2022-103,2022-05-09,programmatic,IVT / Bot Traffic,medium,Invalid traffic from data center IPs in non-target geos.,Enabled IAS/MOAT pre-bid filtering across all DSP buys.,0.79
+INC-2022-264,2022-05-15,linkedin_ads,High CPL,medium,"Audience size too small (<50k), leading to high frequency.",Disabled Audience Network to focus on feed placements.,0.9
+INC-2022-164,2022-05-26,meta_ads,Low CTR,medium,"iOS 17 link tracking stripping UTMs, inflating CPC in reporting.",Re-uploaded video assets and cleared cache.,0.87
+INC-2022-166,2022-05-27,google_pmax,Tracking Break During COVID,medium,GA4 migration during Q4 2021 caused 10-day data gap.,Re-deployed tags via server-side GTM with 24h monitoring.,0.73
+INC-2022-241,2022-06-01,tv,Reach Drop,medium,Measurement lag from Nielsen reporting caused data gap.,Applied strict frequency capping across CTV publishers.,0.75
+INC-2022-138,2022-07-08,events,Events Channel Collapse,high,COVID lockdown: all in-person fundraising events cancelled.,Pivoted to virtual events (Zoom/Teams fundraising webinars).,0.77
+INC-2022-170,2022-07-14,events,Events Channel Collapse,medium,Virtual event platform technical failure caused 80% drop-off.,Renegotiated venue contracts for partial refunds.,0.75
+INC-2022-200,2022-07-14,meta_ads,Budget Misallocation During Crisis,critical,Budget auto-reallocation shifted funds away from best-performing crisis campaign.,Overrode automated budget rules and manually allocated to crisis campaign.,0.78
+INC-2022-254,2022-07-30,meta_ads,Zero Conversions,medium,GTM container rollback accidentally removed purchase event.,Re-installed GTM container and added automated pixel monitoring.,0.77
+INC-2022-293,2022-08-07,programmatic,IVT / Bot Traffic,critical,Invalid traffic from data center IPs in non-target geos.,Enabled IAS/MOAT pre-bid filtering across all DSP buys.,0.7
+INC-2022-192,2022-08-19,podcast,Low Engagement,critical,Episode released on holiday weekend with low downloads.,Requested re-read/make-good for next episode.,0.72
+INC-2022-209,2022-08-25,influencer_campaigns,Fraud Alert,high,Creator's audience audit revealed 60% fake followers.,Blacklisted creator from future campaigns.,0.74
+INC-2022-266,2022-09-10,affiliate,Conversion Drop,high,Sub-affiliate network injecting cookie stuffing on checkout.,Renegotiated placement fee with top partner.,0.91
+INC-2022-287,2022-09-17,linkedin_ads,High CPL,high,Corporate giving budgets frozen during Q1 budget cycles.,Added seniority exclusions to target decision makers only.,0.78
+INC-2022-140,2022-09-29,programmatic,IVT / Bot Traffic,medium,DSP algorithm expanded to new low-quality SSP partners.,Enabled IAS/MOAT pre-bid filtering across all DSP buys.,0.82
+INC-2022-310,2022-10-01,google_search,CPA Spike,medium,Q4 seasonal competition drove up CPCs by 35%.,Adjusted target CPA to defend impression share against BrandX.,0.83
+INC-2022-210,2022-10-02,google_search,CPA Spike,medium,Auction insights show 40% overlap increase with top competitor.,Temporarily increased budget caps to capture holiday demand.,0.84
+INC-2022-275,2022-10-15,direct_mail,Response Rate Drop,critical,Mail arriving after crisis resolved; donor motivation had faded.,A/B tested new envelope designs with stronger urgency hook.,0.71
+INC-2022-223,2022-11-02,podcast,Low Engagement,critical,Podcast audience overlap too high with existing donors; no new reach.,Shifted future ad buys to mid-week release schedules.,0.94
+INC-2022-225,2022-11-12,meta_ads,Budget Misallocation During Crisis,high,Crisis donation audience excluded by mistake from campaign targeting.,Overrode automated budget rules and manually allocated to crisis campaign.,0.77
+INC-2022-143,2022-11-29,google_search,CPA Spike,high,New entrant bidding heavily on our exact match keywords.,Paused broad match and switched to exact/phrase during election.,0.74
+INC-2022-233,2022-12-03,linkedin_ads,High CPL,medium,"Job title targeting too broad, capturing entry-level roles.",Disabled Audience Network to focus on feed placements.,0.75
+INC-2022-236,2022-12-08,tv,Reach Drop,medium,Frequency cap issues on Connected TV (CTV) inventory.,Received make-goods for preempted spots next week.,0.85
+INC-2022-252,2022-12-16,influencer_campaigns,Fraud Alert,medium,Influencer disclosed paid partnership but not to platform's charity audience.,Implemented Modash/HypeAuditor vetting before next hire.,0.92
+INC-2022-311,2022-12-25,google_pmax,Spend Surge,medium,Uncapped budget allowed PMax to spend 300% of daily average.,Added negative IP lists and enabled click fraud protection.,0.86
+INC-2023-169,2023-03-07,meta_ads,Budget Misallocation During Crisis,critical,Ad account flagged as 'fundraising' and temporarily restricted during political period.,Removed audience exclusions and added crisis-specific interest segments.,0.94
+INC-2023-240,2023-03-25,influencer_campaigns,Fraud Alert,high,Creator's audience audit revealed 60% fake followers.,Required audience demographics report before contract signing.,0.81
+INC-2023-168,2023-03-26,google_search,Donation Surge Mis-Attribution,medium,Ukraine crisis donation spike misattributed to new brand campaign.,Separated branded vs non-branded search segmentation in reporting.,0.82
+INC-2023-111,2023-04-09,google_search,CPA Spike,high,New entrant bidding heavily on our exact match keywords.,Increased brand CPC bids by 20% and filed trademark complaint.,0.92
+INC-2023-122,2023-04-25,ooh,Low Impressions,critical,COVID lockdown: zero foot traffic at all OOH locations.,Expanded geofence radius from 100m to 500m.,0.87
+INC-2023-137,2023-05-21,meta_ads,Zero Conversions,medium,Facebook CAPI misconfiguration after server migration.,Generated new CAPI token and updated server config.,0.84
+INC-2023-202,2023-05-21,google_pmax,Spend Surge,medium,Asset group rotation optimized for volume over value during crisis period.,Implemented strict daily spend caps and tROAS targets.,0.87
+INC-2023-247,2023-05-24,meta_ads,Budget Misallocation During Crisis,high,Ad account flagged as 'fundraising' and temporarily restricted during political period.,Removed audience exclusions and added crisis-specific interest segments.,0.94
+INC-2023-285,2023-05-24,meta_ads,Budget Misallocation During Crisis,high,Budget auto-reallocation shifted funds away from best-performing crisis campaign.,Submitted MMM model retraining request with crisis period data.,0.7
+INC-2023-284,2023-05-25,programmatic,IVT / Bot Traffic,medium,Invalid traffic from data center IPs in non-target geos.,Implemented post-bid IVT scoring with automatic credit back.,0.87
+INC-2023-133,2023-05-27,tv,Reach Drop,high,CTV DSP serving to incorrect geo during national campaign.,Used spot logs for interim reporting while awaiting Nielsen.,0.93
+INC-2023-155,2023-06-13,podcast,Low Engagement,high,Promo code mentioned on air didn't match backend system.,Created vanity URL redirect to fix promo code error.,0.95
+INC-2023-124,2023-06-15,meta_ads,Low CTR,critical,Creative fatigue: ad frequency exceeded 8.0.,Re-uploaded video assets and cleared cache.,0.91
+INC-2023-318,2023-07-08,direct_mail,Response Rate Drop,medium,Creative execution (envelope design) performed poorly vs control.,Ran NCOA update on mailing list before next drop.,0.93
+INC-2023-280,2023-07-09,direct_mail,Response Rate Drop,critical,Mail arriving after crisis resolved; donor motivation had faded.,Added real-time crisis messaging insert to in-flight mail pieces.,0.9
+INC-2023-119,2023-07-22,meta_ads,Zero Conversions,medium,"Server-side API token expired, causing event loss.",Restored previous GTM version and verified checkout firing.,0.81
+INC-2023-189,2023-08-05,direct_mail,Response Rate Drop,critical,Mailing list had high percentage of outdated addresses.,Ran NCOA update on mailing list before next drop.,0.71
+INC-2023-196,2023-08-13,meta_ads,Budget Misallocation During Crisis,high,Budget auto-reallocation shifted funds away from best-performing crisis campaign.,Submitted account verification for fundraising allowlist.,0.87
+INC-2023-263,2023-09-11,google_search,CPA Spike,medium,Competitor 'BrandX' aggressive bidding on donation/fundraising keywords.,Paused broad match and switched to exact/phrase during election.,0.78
+INC-2023-197,2023-10-08,tv,Reach Drop,high,CTV DSP serving to incorrect geo during national campaign.,Used spot logs for interim reporting while awaiting Nielsen.,0.85
+INC-2023-123,2023-10-19,events,Events Channel Collapse,high,COVID lockdown: all in-person fundraising events cancelled.,Switched virtual platform from Zoom to Hopin with backup stream.,0.73
+INC-2023-161,2023-11-25,influencer_campaigns,Fraud Alert,critical,Sudden spike in followers from non-target geo (click farm).,Blacklisted creator from future campaigns.,0.9
+INC-2023-190,2023-11-29,google_search,Donation Surge Mis-Attribution,medium,Ukraine crisis donation spike misattributed to new brand campaign.,Paused paid search bidding during organic surge to reduce wasted spend.,0.72
+INC-2023-257,2023-12-02,meta_ads,Low CTR,medium,Creative fatigue: ad frequency exceeded 8.0.,Expanded audience to 'Lookalike 5%' and broad interest.,0.75
+INC-2023-145,2023-12-29,google_pmax,Tracking Break During COVID,medium,Server migration during COVID lockdown caused 3-day tag firing failure.,Backfilled conversions using order database export.,0.83
+INC-2024-125,2024-01-03,events,Events Channel Collapse,high,COVID lockdown: all in-person fundraising events cancelled.,Renegotiated venue contracts for partial refunds.,0.85
+INC-2024-191,2024-01-03,google_search,Donation Surge Mis-Attribution,high,Crisis-driven direct traffic inflating conversion rates vs actual ad performance.,Paused paid search bidding during organic surge to reduce wasted spend.,0.87
+INC-2024-298,2024-01-15,google_pmax,Tracking Break During COVID,critical,iOS 14.5 release coincided with peak COVID donation period; masked conversions.,Re-deployed tags via server-side GTM with 24h monitoring.,0.75
+INC-2024-128,2024-01-18,meta_ads,Zero Conversions,critical,iOS 14.5 ATT rollout caused 48-hour reporting gap on conversions.,Restored previous GTM version and verified checkout firing.,0.91
+INC-2024-141,2024-01-21,google_pmax,Spend Surge,critical,Asset group rotation optimized for volume over value during crisis period.,Added negative IP lists and enabled click fraud protection.,0.81
+INC-2024-307,2024-01-21,tv,Reach Drop,critical,Frequency cap issues on Connected TV (CTV) inventory.,Used spot logs for interim reporting while awaiting Nielsen.,0.81
+INC-2024-148,2024-01-24,influencer_campaigns,Fraud Alert,high,Creator engagement rate 0.01% despite 1M followers.,Implemented Modash/HypeAuditor vetting before next hire.,0.7
+INC-2024-101,2024-02-06,meta_ads,Zero Conversions,critical,"Server-side API token expired, causing event loss.",Restored previous GTM version and verified checkout firing.,0.84
+INC-2024-234,2024-02-14,google_pmax,Tracking Break During COVID,medium,Server migration during COVID lockdown caused 3-day tag firing failure.,Backfilled conversions using order database export.,0.94
+INC-2024-243,2024-02-23,podcast,Low Engagement,high,Podcast audience overlap too high with existing donors; no new reach.,Requested re-read/make-good for next episode.,0.82
+INC-2024-149,2024-03-07,direct_mail,Response Rate Drop,medium,Mail arriving after crisis resolved; donor motivation had faded.,Added real-time crisis messaging insert to in-flight mail pieces.,0.93
+INC-2024-129,2024-04-30,google_search,Donation Surge Mis-Attribution,medium,BLM fundraising wave caused organic/paid bleed in attribution.,Separated branded vs non-branded search segmentation in reporting.,0.79
+INC-2024-267,2024-05-10,affiliate,Conversion Drop,critical,Sub-affiliate network injecting cookie stuffing on checkout.,Voided commissions for fraudulent leads and blocked sub-ID.,0.89
+INC-2024-261,2024-06-02,meta_ads,Low CTR,medium,Headline 'Free Shipping' no longer resonating post-COVID.,Refreshed creative assets and implemented frequency capping.,0.74
+INC-2024-215,2024-06-13,google_pmax,Spend Surge,high,Algorithm aggressively targeted mobile app placements.,Excluded mobile app categories and gaming sites.,0.84
+INC-2024-244,2024-06-16,ooh,Low Impressions,critical,Digital OOH screen malfunctioned for 4 days.,Shifted OOH budget to digital for duration of lockdown.,0.81
+INC-2024-176,2024-06-27,influencer_campaigns,Fraud Alert,critical,Sudden spike in followers from non-target geo (click farm).,Required audience demographics report before contract signing.,0.85
+INC-2024-319,2024-07-12,linkedin_ads,High CPL,critical,Corporate giving budgets frozen during Q1 budget cycles.,Added seniority exclusions to target decision makers only.,0.86
+INC-2024-313,2024-08-03,google_pmax,Tracking Break During COVID,critical,iOS 14.5 release coincided with peak COVID donation period; masked conversions.,Ran parallel UA/GA4 for 60 days to validate data parity.,0.79
+INC-2024-232,2024-08-07,linkedin_ads,High CPL,medium,LinkedIn Audience Network delivering low-quality clicks.,Shifted budget to Q3/Q4 when corporate giving peaks.,0.92
+INC-2024-132,2024-08-23,google_pmax,Tracking Break During COVID,critical,Server migration during COVID lockdown caused 3-day tag firing failure.,Ran parallel UA/GA4 for 60 days to validate data parity.,0.72
+INC-2024-211,2024-09-24,google_pmax,Tracking Break During COVID,high,GA4 migration during Q4 2021 caused 10-day data gap.,Re-deployed tags via server-side GTM with 24h monitoring.,0.74
+INC-2024-218,2024-09-28,podcast,Low Engagement,high,Promo code mentioned on air didn't match backend system.,Created vanity URL redirect to fix promo code error.,0.74
+INC-2024-291,2024-11-03,meta_ads,Low CTR,critical,Broken video asset rendering as black screen in feed.,Re-uploaded video assets and cleared cache.,0.84
+INC-2024-316,2024-11-12,affiliate,Conversion Drop,high,Top affiliate partner removed our link from their homepage.,Implemented last-touch validation on all affiliate conversions.,0.87
+INC-2024-198,2024-11-20,google_search,Donation Surge Mis-Attribution,critical,Turkey earthquake search surge conflated with paid campaign performance.,Created separate campaign for crisis keywords to isolate performance.,0.91
+INC-2024-255,2024-11-22,events,Events Channel Collapse,high,COVID lockdown: all in-person fundraising events cancelled.,Switched virtual platform from Zoom to Hopin with backup stream.,0.81
+INC-2024-226,2024-12-02,affiliate,Conversion Drop,high,Fraudulent leads detected from new sub-affiliate network.,Implemented last-touch validation on all affiliate conversions.,0.77
+INC-2024-165,2024-12-05,affiliate,Conversion Drop,medium,Top affiliate partner removed our link from their homepage.,Invalidated leaked codes and issued exclusive partner links.,0.95
+INC-2024-219,2024-12-05,influencer_campaigns,Fraud Alert,critical,Creator's audience audit revealed 60% fake followers.,Implemented Modash/HypeAuditor vetting before next hire.,0.71
+INC-2024-118,2024-12-10,linkedin_ads,High CPL,high,LinkedIn Audience Network delivering low-quality clicks.,Disabled Audience Network to focus on feed placements.,0.75
+INC-2024-131,2024-12-17,google_pmax,Tracking Break During COVID,critical,iOS 14.5 release coincided with peak COVID donation period; masked conversions.,Re-deployed tags via server-side GTM with 24h monitoring.,0.94
+INC-2024-184,2024-12-17,meta_ads,Budget Misallocation During Crisis,high,Ad account flagged as 'fundraising' and temporarily restricted during political period.,Overrode automated budget rules and manually allocated to crisis campaign.,0.74
+INC-2024-314,2024-12-17,google_search,CPA Spike,critical,New entrant bidding heavily on our exact match keywords.,Increased brand CPC bids by 20% and filed trademark complaint.,0.9
+INC-2024-289,2024-12-28,linkedin_ads,High CPL,high,Corporate giving budgets frozen during Q1 budget cycles.,Shifted budget to Q3/Q4 when corporate giving peaks.,0.91
+INC-2024-270,2024-12-29,programmatic,IVT / Bot Traffic,medium,Bot traffic spike: IVT rate jumped from 4% to 48% in 72 hours.,Added IP exclusion lists for known data center ranges.,0.84
+INC-2024-130,2024-12-30,direct_mail,Response Rate Drop,critical,Mailing list had high percentage of outdated addresses.,Shifted future mailings to avoid peak postal periods.,0.92
+INC-2025-295,2025-01-10,google_search,Donation Surge Mis-Attribution,high,Crisis-driven direct traffic inflating conversion rates vs actual ad performance.,Separated branded vs non-branded search segmentation in reporting.,0.77
+INC-2025-106,2025-01-25,direct_mail,Response Rate Drop,high,Creative execution (envelope design) performed poorly vs control.,Ran NCOA update on mailing list before next drop.,0.92
+INC-2025-105,2025-01-27,google_search,Donation Surge Mis-Attribution,medium,Crisis-driven direct traffic inflating conversion rates vs actual ad performance.,Separated branded vs non-branded search segmentation in reporting.,0.88
+INC-2025-229,2025-01-30,ooh,Low Impressions,critical,Construction blocked visibility of 3 billboard locations.,Negotiated replacement locations with vendor.,0.86
+INC-2025-256,2025-02-17,programmatic,IVT / Bot Traffic,critical,Bot traffic spike: IVT rate jumped from 4% to 48% in 72 hours.,Enabled IAS/MOAT pre-bid filtering across all DSP buys.,0.92
+INC-2025-262,2025-02-28,google_pmax,Spend Surge,critical,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.94
+INC-2025-194,2025-03-02,meta_ads,Zero Conversions,critical,iOS 14.5 ATT rollout caused 48-hour reporting gap on conversions.,Implemented server-side event deduplication layer.,0.93
+INC-2025-277,2025-03-18,meta_ads,Low CTR,medium,"iOS 17 link tracking stripping UTMs, inflating CPC in reporting.",Tested new emotional hook messaging aligned to active crisis.,0.76
+INC-2025-249,2025-04-01,ooh,Low Impressions,medium,Digital OOH screen malfunctioned for 4 days.,Negotiated replacement locations with vendor.,0.88
+INC-2025-297,2025-04-02,ooh,Low Impressions,critical,Digital OOH screen malfunctioned for 4 days.,Expanded geofence radius from 100m to 500m.,0.88
+INC-2025-158,2025-04-05,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page after deployment #1204.,Generated new CAPI token and updated server config.,0.72
+INC-2025-296,2025-04-06,tv,Reach Drop,high,Measurement lag from Nielsen reporting caused data gap.,Added geo verification layer to CTV buys.,0.83
+INC-2025-246,2025-04-12,podcast,Low Engagement,high,Episode released on holiday weekend with low downloads.,Requested re-read/make-good for next episode.,0.76
+INC-2025-171,2025-05-02,google_pmax,Spend Surge,high,Uncapped budget allowed PMax to spend 300% of daily average.,Excluded mobile app categories and gaming sites.,0.95
+INC-2025-142,2025-05-03,influencer_campaigns,Fraud Alert,critical,Creator engagement rate 0.01% despite 1M followers.,Implemented Modash/HypeAuditor vetting before next hire.,0.88
+INC-2025-187,2025-05-03,programmatic,IVT / Bot Traffic,critical,Invalid traffic from data center IPs in non-target geos.,Enabled IAS/MOAT pre-bid filtering across all DSP buys.,0.71
+INC-2025-274,2025-05-10,google_pmax,Spend Surge,high,Uncapped budget allowed PMax to spend 300% of daily average.,Excluded mobile app categories and gaming sites.,0.87
+INC-2025-299,2025-05-31,google_pmax,Spend Surge,high,Algorithm aggressively targeted mobile app placements.,Excluded mobile app categories and gaming sites.,0.74
+INC-2025-177,2025-06-07,meta_ads,Budget Misallocation During Crisis,medium,Crisis donation audience excluded by mistake from campaign targeting.,Submitted MMM model retraining request with crisis period data.,0.73
+INC-2025-213,2025-06-13,meta_ads,Zero Conversions,high,Tracking pixel fell off checkout page after deployment #1204.,Re-installed GTM container and added automated pixel monitoring.,0.78
+INC-2025-113,2025-06-14,ooh,Low Impressions,medium,COVID lockdown: zero foot traffic at all OOH locations.,Shifted OOH budget to digital for duration of lockdown.,0.84
+INC-2025-186,2025-06-19,meta_ads,Budget Misallocation During Crisis,critical,Budget auto-reallocation shifted funds away from best-performing crisis campaign.,Submitted account verification for fundraising allowlist.,0.84
+INC-2025-178,2025-06-27,influencer_campaigns,Fraud Alert,critical,Creator's audience audit revealed 60% fake followers.,Blacklisted creator from future campaigns.,0.94
+INC-2025-182,2025-07-01,programmatic,IVT / Bot Traffic,critical,Invalid traffic from data center IPs in non-target geos.,Added IP exclusion lists for known data center ranges.,0.79
+INC-2025-253,2025-07-05,ooh,Low Impressions,high,Digital OOH screen malfunctioned for 4 days.,Shifted OOH budget to digital for duration of lockdown.,0.75
+INC-2025-227,2025-07-06,google_pmax,Spend Surge,medium,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.88
+INC-2025-188,2025-07-19,influencer_campaigns,Fraud Alert,critical,Influencer disclosed paid partnership but not to platform's charity audience.,Required audience demographics report before contract signing.,0.87
+INC-2025-260,2025-08-02,podcast,Low Engagement,high,Host read script was truncated during recording.,Shifted future ad buys to mid-week release schedules.,0.77
+INC-2025-205,2025-08-06,affiliate,Conversion Drop,medium,Coupon code leakage to discount aggregator sites lowered AOV.,Implemented last-touch validation on all affiliate conversions.,0.93
+INC-2025-251,2025-08-06,linkedin_ads,High CPL,medium,LinkedIn Audience Network delivering low-quality clicks.,Disabled Audience Network to focus on feed placements.,0.77
+INC-2025-104,2025-08-24,influencer_campaigns,Fraud Alert,high,Creator's audience audit revealed 60% fake followers.,Implemented Modash/HypeAuditor vetting before next hire.,0.72
+INC-2025-278,2025-08-24,google_pmax,Spend Surge,critical,PMax auto-expanded to low-quality Display inventory.,Added placement exclusions and tightened location settings.,0.87
+INC-2025-302,2025-08-24,affiliate,Conversion Drop,medium,Top affiliate partner removed our link from their homepage.,Renegotiated placement fee with top partner.,0.81
+INC-2025-162,2025-08-30,podcast,Low Engagement,critical,Host read script was truncated during recording.,Requested re-read/make-good for next episode.,0.89
+INC-2025-258,2025-09-14,affiliate,Conversion Drop,critical,Fraudulent leads detected from new sub-affiliate network.,Invalidated leaked codes and issued exclusive partner links.,0.95
+INC-2025-146,2025-10-05,google_pmax,Spend Surge,high,Algorithm aggressively targeted mobile app placements.,Excluded mobile app categories and gaming sites.,0.85
+INC-2025-112,2025-10-29,podcast,Low Engagement,critical,Episode released on holiday weekend with low downloads.,Rotated to new podcast network with fresher audience.,0.79
+INC-2025-216,2025-11-07,meta_ads,Low CTR,medium,"iOS 17 link tracking stripping UTMs, inflating CPC in reporting.",Tested new emotional hook messaging aligned to active crisis.,0.92
+INC-2025-151,2025-11-23,tv,Reach Drop,medium,Primetime spots preempted by breaking news / crisis coverage.,Added geo verification layer to CTV buys.,0.93
+INC-2025-259,2025-11-24,google_search,CPA Spike,medium,Election cycle political ad spending inflated CPMs across search.,Launched defensive brand campaign with aggressive Top IS target.,0.93
+INC-2025-126,2025-11-26,tv,Reach Drop,high,Frequency cap issues on Connected TV (CTV) inventory.,Used spot logs for interim reporting while awaiting Nielsen.,0.71
+INC-2025-201,2025-12-15,google_pmax,Spend Surge,high,Bot traffic spike on unknown placements drove up spend.,Added negative IP lists and enabled click fraud protection.,0.79
+INC-2025-120,2025-12-25,affiliate,Conversion Drop,high,Fraudulent leads detected from new sub-affiliate network.,Renegotiated placement fee with top partner.,0.8
+INC-2026-199,2026-01-03,google_pmax,Spend Surge,medium,Algorithm aggressively targeted mobile app placements.,Implemented strict daily spend caps and tROAS targets.,0.71
+INC-2026-110,2026-01-26,google_pmax,Tracking Break During COVID,medium,Server migration during COVID lockdown caused 3-day tag firing failure.,Backfilled conversions using order database export.,0.81
+INC-2026-147,2026-02-05,affiliate,Conversion Drop,critical,Fraudulent leads detected from new sub-affiliate network.,Voided commissions for fraudulent leads and blocked sub-ID.,0.9
+INC-2026-265,2026-02-19,google_pmax,Spend Surge,high,Asset group rotation optimized for volume over value during crisis period.,Added negative IP lists and enabled click fraud protection.,0.8
+INC-2026-204,2026-02-20,events,Events Channel Collapse,critical,Delta variant surge caused last-minute cancellations of 12 events.,Pivoted to virtual events (Zoom/Teams fundraising webinars).,0.88

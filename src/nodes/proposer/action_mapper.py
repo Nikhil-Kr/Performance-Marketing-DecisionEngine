@@ -703,12 +703,204 @@
 #     return channel
 
 ## <--------- Updated - 3/3 --------->
-"""Proposer Node - Maps diagnosis to executable actions using LLM + keyword fallback."""
+
+# ## <--------- V3 - LLM Primary + Keyword Fallback (Previous Active) --------->
+# """Proposer Node - Maps diagnosis to executable actions using LLM + keyword fallback."""
+# import uuid
+# import json
+# import re
+# from src.schemas.state import ExpeditionState
+# from src.intelligence.models import get_llm_safe
+
+
+# # Action templates based on root cause patterns
+# ACTION_TEMPLATES = {
+#     # --- Digital Performance ---
+#     "competitor_bidding": {
+#         "action_type": "bid_adjustment",
+#         "operation": "increase",
+#         "parameters": {"adjustment_pct": 20},
+#         "estimated_impact": "Regain impression share within 24-48 hours",
+#         "risk_level": "medium",
+#         "description": "Increase bids to counter competitor activity in auctions",
+#     },
+#     "creative_fatigue": {
+#         "action_type": "notification",
+#         "operation": "alert",
+#         "parameters": {"team": "creative", "urgency": "high"},
+#         "estimated_impact": "New creative deployment within 2-3 days",
+#         "risk_level": "low",
+#         "description": "Alert creative team about ad fatigue and need for fresh assets",
+#     },
+#     "tracking_issue": {
+#         "action_type": "notification",
+#         "operation": "alert",
+#         "parameters": {"team": "engineering", "urgency": "critical"},
+#         "estimated_impact": "Tracking restoration within 2-4 hours",
+#         "risk_level": "low",
+#         "description": "Alert engineering to fix tracking pixel, tag, or attribution issues",
+#     },
+#     "budget_exhaustion": {
+#         "action_type": "budget_change",
+#         "operation": "increase",
+#         "parameters": {"adjustment_pct": 25},
+#         "estimated_impact": "Resume spend immediately",
+#         "risk_level": "medium",
+#         "description": "Increase daily budget to prevent spend caps from limiting delivery",
+#     },
+#     "platform_issue": {
+#         "action_type": "notification",
+#         "operation": "alert",
+#         "parameters": {"team": "platform_ops", "urgency": "medium"},
+#         "estimated_impact": "Monitor for platform recovery",
+#         "risk_level": "low",
+#         "description": "Alert ops team about suspected platform algorithm or outage issue",
+#     },
+#     "audience_saturation": {
+#         "action_type": "pause",
+#         "operation": "pause_campaign",
+#         "parameters": {"duration_hours": 24},
+#         "estimated_impact": "Reduce wasted spend, allow audience refresh",
+#         "risk_level": "medium",
+#         "description": "Pause high-frequency campaigns to allow audience refresh",
+#     },
+#     # --- Fraud & Compliance ---
+#     "bot_traffic": {
+#         "action_type": "exclusion",
+#         "operation": "block_ip_range",
+#         "parameters": {"list_id": "global_blocklist", "update": "append"},
+#         "estimated_impact": "Stop invalid traffic spend immediately",
+#         "risk_level": "medium",
+#         "description": "Block suspected bot traffic IP ranges to stop wasted spend",
+#     },
+#     "influencer_fraud": {
+#         "action_type": "contract",
+#         "operation": "terminate_agreement",
+#         "parameters": {"reason": "fraud_clause", "notify_legal": True},
+#         "estimated_impact": "Recover remaining budget, blacklist creator",
+#         "risk_level": "high",
+#         "description": "Terminate influencer contract for fraudulent activity (fake followers/engagement)",
+#     },
+#     # --- Offline & Partners ---
+#     "make_good": {
+#         "action_type": "negotiation",
+#         "operation": "request_make_good",
+#         "parameters": {"inventory_type": "equivalent_spot"},
+#         "estimated_impact": "Recover lost GRPs in next flight",
+#         "risk_level": "low",
+#         "description": "Request make-good spots for preempted or under-delivered media",
+#     },
+#     "partner_issue": {
+#         "action_type": "communication",
+#         "operation": "contact_partner",
+#         "parameters": {"priority": "high", "template": "compliance_violation"},
+#         "estimated_impact": "Restore tracking or stop leakage",
+#         "risk_level": "low",
+#         "description": "Contact media partner about compliance or tracking issues",
+#     },
+#     "schedule_adjustment": {
+#         "action_type": "schedule_change",
+#         "operation": "reschedule",
+#         "parameters": {"shift_strategy": "optimize_daypart"},
+#         "estimated_impact": "Improve reach by shifting to higher-performing time slots",
+#         "risk_level": "low",
+#         "description": "Adjust media schedule timing (daypart, day-of-week) for offline channels",
+#     },
+# }
+#
+#
+# def propose_actions(state: ExpeditionState) -> dict:
+#     print("\n🎯 Proposing Actions...")
+#     diagnosis = state.get("diagnosis")
+#     anomaly = state.get("selected_anomaly")
+#     if not diagnosis:
+#         return {"proposed_actions": [], "current_node": "proposer", "error": "No diagnosis to propose actions for"}
+#     root_cause = diagnosis.get("root_cause", "").lower()
+#     channel = anomaly.get("channel", "unknown") if anomaly else "unknown"
+#     actions = _llm_action_mapping(diagnosis, anomaly)
+#     if not actions:
+#         print("  ⚠️ LLM mapping failed, using keyword fallback")
+#         actions = _keyword_action_mapping(root_cause, channel, anomaly)
+#     if not actions:
+#         actions.append({"action_id": f"action_{uuid.uuid4().hex[:8]}", "action_type": "notification",
+#             "platform": channel, "resource_type": "alert", "resource_id": "manual_review",
+#             "operation": "alert", "parameters": {"team": "decision_science", "urgency": "medium",
+#             "message": f"Manual review required for {channel} anomaly"},
+#             "estimated_impact": "Analyst assigned within 1 hour", "risk_level": "low", "requires_approval": False})
+#     print(f"  ✅ Generated {len(actions)} proposed actions")
+#     return {"proposed_actions": actions, "current_node": "proposer"}
+#
+#
+# def _llm_action_mapping(diagnosis: dict, anomaly: dict | None) -> list[dict]:
+#     try:
+#         llm = get_llm_safe("tier1")
+#         template_menu = "\n".join([f"- {key}: {tmpl.get('description', tmpl.get('operation', key))}" for key, tmpl in ACTION_TEMPLATES.items()])
+#         channel = anomaly.get("channel", "unknown") if anomaly else "unknown"
+#         prompt = f"""Given this diagnosis, select the most appropriate action templates.\nDIAGNOSIS:\nRoot Cause: {diagnosis.get('root_cause', 'Unknown')}\nRecommended Actions: {diagnosis.get('recommended_actions', [])}\nCHANNEL: {channel}\nAVAILABLE ACTION TEMPLATES:\n{template_menu}\nSelect 1-3 templates. Respond ONLY with a JSON array of template keys."""
+#         response = llm.invoke([{"role": "user", "content": prompt}])
+#         content = response.content.strip()
+#         json_match = re.search(r'\[[\s\S]*?\]', content)
+#         if json_match:
+#             selected_keys = json.loads(json_match.group())
+#             actions = [_create_action(k.strip().lower(), channel, anomaly) for k in selected_keys if k.strip().lower() in ACTION_TEMPLATES]
+#             if actions: return actions
+#     except Exception as e:
+#         print(f"  ⚠️ LLM action mapping failed: {e}")
+#     return []
+#
+#
+# def _keyword_action_mapping(root_cause: str, channel: str, anomaly: dict | None) -> list[dict]:
+#     actions = []
+#     if any(kw in root_cause for kw in ["competitor", "bidding", "auction", "cpc", "impression share"]):
+#         actions.append(_create_action("competitor_bidding", channel, anomaly))
+#     if any(kw in root_cause for kw in ["creative", "fatigue", "ad copy", "script", "video", "frequency"]):
+#         actions.append(_create_action("creative_fatigue", channel, anomaly))
+#     if any(kw in root_cause for kw in ["tracking", "pixel", "attribution", "measurement", "tag", "ios", "capi", "gtm"]):
+#         actions.append(_create_action("tracking_issue", channel, anomaly))
+#     if any(kw in root_cause for kw in ["budget", "spend", "cap", "limit", "exhausted"]):
+#         actions.append(_create_action("budget_exhaustion", channel, anomaly))
+#     if any(kw in root_cause for kw in ["platform", "algorithm", "outage", "bug", "update"]):
+#         actions.append(_create_action("platform_issue", channel, anomaly))
+#     if any(kw in root_cause for kw in ["saturation", "frequency", "overexposure", "lookalike"]):
+#         actions.append(_create_action("audience_saturation", channel, anomaly))
+#     if any(kw in root_cause for kw in ["bot", "fraud", "fake", "invalid", "click farm"]):
+#         actions.append(_create_action("influencer_fraud" if "influencer" in channel else "bot_traffic", channel, anomaly))
+#     if any(kw in root_cause for kw in ["preempt", "make-good", "nielsen", "tv spot", "grp", "delivery"]):
+#         actions.append(_create_action("make_good", channel, anomaly))
+#     if any(kw in root_cause for kw in ["affiliate", "partner", "coupon", "leakage", "promo code"]):
+#         actions.append(_create_action("partner_issue", channel, anomaly))
+#     if any(kw in root_cause for kw in ["daypart", "schedule", "timing", "weekend", "holiday", "download"]):
+#         actions.append(_create_action("schedule_adjustment", channel, anomaly))
+#     return actions
+#
+#
+# def _create_action(template_key: str, channel: str, anomaly: dict | None) -> dict:
+#     template = ACTION_TEMPLATES.get(template_key, {})
+#     return {"action_id": f"action_{uuid.uuid4().hex[:8]}", "action_type": template.get("action_type", "notification"),
+#         "platform": _get_platform(channel), "resource_type": "campaign", "resource_id": f"{channel}_campaign_001",
+#         "operation": template.get("operation", "alert"), "parameters": template.get("parameters", {}),
+#         "estimated_impact": template.get("estimated_impact", "Unknown"), "risk_level": template.get("risk_level", "medium"),
+#         "requires_approval": template.get("risk_level", "medium") != "low"}
+#
+#
+# def _get_platform(channel: str) -> str:
+#     if channel.startswith("google"): return "google_ads"
+#     elif channel.startswith("meta"): return "meta_ads"
+#     elif channel.startswith("tiktok"): return "tiktok_ads"
+#     elif channel == "influencer_campaigns": return "creatoriq"
+#     elif channel in ("tv", "radio", "ooh", "events", "podcast", "direct_mail"): return f"{channel}_platform"
+#     else: return channel
+
+
+## <--------- V4 - MMM Guardrail Restored --------->
+"""Proposer Node - Maps diagnosis to executable actions using LLM + keyword fallback + MMM guardrail."""
 import uuid
 import json
 import re
+from datetime import datetime
 from src.schemas.state import ExpeditionState
 from src.intelligence.models import get_llm_safe
+from src.data_layer import get_strategy_data
 
 
 # Action templates based on root cause patterns
@@ -762,7 +954,7 @@ ACTION_TEMPLATES = {
         "risk_level": "medium",
         "description": "Pause high-frequency campaigns to allow audience refresh",
     },
-    
+
     # --- Fraud & Compliance ---
     "bot_traffic": {
         "action_type": "exclusion",
@@ -780,7 +972,7 @@ ACTION_TEMPLATES = {
         "risk_level": "high",
         "description": "Terminate influencer contract for fraudulent activity (fake followers/engagement)",
     },
-    
+
     # --- Offline & Partners ---
     "make_good": {
         "action_type": "negotiation",
@@ -811,38 +1003,36 @@ ACTION_TEMPLATES = {
 
 def propose_actions(state: ExpeditionState) -> dict:
     """
-    Proposer Node.
-    
-    Maps the diagnosis root cause to specific executable actions.
-    
-    Improvement #8: Now uses LLM as primary method for action mapping,
-    with keyword matching as fallback. LLM receives the full template menu
-    and selects appropriate actions based on diagnosis context.
+    Proposer Node — V4.
+
+    Maps diagnosis to executable actions via LLM (primary) + keyword fallback,
+    then applies MMM guardrail to block budget increases on saturated channels.
     """
     print("\n🎯 Proposing Actions...")
-    
+
     diagnosis = state.get("diagnosis")
     anomaly = state.get("selected_anomaly")
-    
+
     if not diagnosis:
         return {
             "proposed_actions": [],
             "current_node": "proposer",
             "error": "No diagnosis to propose actions for",
         }
-    
+
     root_cause = diagnosis.get("root_cause", "").lower()
     channel = anomaly.get("channel", "unknown") if anomaly else "unknown"
-    
-    # Primary: LLM-based action mapping (Improvement #8)
+
+    # Primary: LLM-based action mapping
     actions = _llm_action_mapping(diagnosis, anomaly)
-    
-    # Fallback: Keyword matching if LLM fails or returns nothing
+
+    # Fallback: keyword matching if LLM fails or returns nothing
     if not actions:
         print("  ⚠️ LLM mapping failed, using keyword fallback")
-        actions = _keyword_action_mapping(root_cause, channel, anomaly)
-    
-    # Always add a notification action as fallback if nothing matched
+        allowed_keys = diagnosis.get("allowed_action_keys")
+        actions = _keyword_action_mapping(root_cause, channel, anomaly, allowed_keys)
+
+    # Last resort: manual review notification
     if not actions:
         actions.append({
             "action_id": f"action_{uuid.uuid4().hex[:8]}",
@@ -860,35 +1050,102 @@ def propose_actions(state: ExpeditionState) -> dict:
             "risk_level": "low",
             "requires_approval": False,
         })
-    
+
+    # MMM Guardrail: block budget increases on saturated channels
+    actions = _apply_guardrails(actions, channel, state)
+
     print(f"  ✅ Generated {len(actions)} proposed actions")
     for action in actions:
         print(f"    - {action['action_type']}: {action['operation']} ({action['risk_level']} risk)")
-    
+
     return {
         "proposed_actions": actions,
         "current_node": "proposer",
     }
 
 
-def _llm_action_mapping(diagnosis: dict, anomaly: dict | None) -> list[dict]:
+def _apply_guardrails(actions: list, channel: str, state: dict) -> list:
     """
-    Use LLM (Tier 1) to intelligently map diagnosis to action templates.
-    
-    Improvement #8: Presents the full template menu to the LLM and asks
-    it to select the most appropriate actions based on the diagnosis.
+    Apply MMM guardrail to proposed actions.
+
+    If a channel is saturated (marginal ROAS < 1.0 or recommendation == 'maintain'),
+    block any budget_increase actions and replace them with a manual_review notification.
+    Uses analysis_end_date from state for time-travel compliance.
+    """
+    try:
+        strategy = get_strategy_data()
+
+        reference_date = None
+        if state.get("analysis_end_date"):
+            try:
+                reference_date = datetime.strptime(state["analysis_end_date"], "%Y-%m-%d")
+            except (ValueError, TypeError):
+                pass
+
+        mmm = strategy.get_mmm_guardrails(channel, reference_date=reference_date)
+
+        if not mmm:
+            return actions
+
+        marginal_roas = mmm.get("current_marginal_roas", 1.0)
+        recommendation = mmm.get("recommendation", "scale")
+
+        filtered = []
+        for action in actions:
+            if (
+                action.get("action_type") == "budget_change"
+                and action.get("operation") == "increase"
+                and (recommendation == "maintain" or marginal_roas < 1.0)
+            ):
+                print(f"    ⚠️ MMM Guardrail: blocked budget increase — channel saturated (marginal ROAS: {marginal_roas:.2f})")
+                review_action = {
+                    "action_id": f"action_{uuid.uuid4().hex[:8]}",
+                    "action_type": "notification",
+                    "platform": _get_platform(channel),
+                    "resource_type": "alert",
+                    "resource_id": "manual_review",
+                    "operation": "alert",
+                    "parameters": {"team": "decision_science", "urgency": "medium"},
+                    "estimated_impact": f"Review recommended: channel near saturation (marginal ROAS: {marginal_roas:.2f})",
+                    "risk_level": "low",
+                    "requires_approval": False,
+                }
+                filtered.append(review_action)
+            else:
+                filtered.append(action)
+
+        return filtered
+
+    except Exception as e:
+        print(f"    ⚠️ MMM guardrail check failed: {e}")
+        return actions
+
+
+def _llm_action_mapping(diagnosis: dict, anomaly: dict | None) -> list[dict]:
+    """Use LLM (Tier 1) to intelligently map diagnosis to action templates.
+
+    Respects allowed_action_keys from the explainer's ROOT_CAUSE_ACTION_MAP
+    guardrail — only shows the LLM templates that are valid for this root cause.
     """
     try:
         llm = get_llm_safe("tier1")
-        
-        # Build template menu for LLM
+
+        # Filter templates to allowed keys if the explainer set them
+        allowed_keys = diagnosis.get("allowed_action_keys")
+        if allowed_keys:
+            templates_to_show = {k: v for k, v in ACTION_TEMPLATES.items() if k in allowed_keys}
+            if not templates_to_show:
+                templates_to_show = ACTION_TEMPLATES  # fallback to all if no overlap
+        else:
+            templates_to_show = ACTION_TEMPLATES
+
         template_menu = "\n".join([
             f"- {key}: {tmpl.get('description', tmpl.get('operation', key))}"
-            for key, tmpl in ACTION_TEMPLATES.items()
+            for key, tmpl in templates_to_show.items()
         ])
-        
+
         channel = anomaly.get("channel", "unknown") if anomaly else "unknown"
-        
+
         prompt = f"""Given this diagnosis, select the most appropriate action templates.
 
 DIAGNOSIS:
@@ -907,91 +1164,69 @@ Do not include any explanation, just the JSON array."""
 
         messages = [{"role": "user", "content": prompt}]
         response = llm.invoke(messages)
-        
-        # Parse response
+
         content = response.content.strip()
         json_match = re.search(r'\[[\s\S]*?\]', content)
         if json_match:
             selected_keys = json.loads(json_match.group())
-            
             actions = []
             for key in selected_keys:
                 key = key.strip().lower()
                 if key in ACTION_TEMPLATES:
                     actions.append(_create_action(key, channel, anomaly))
-            
             if actions:
                 return actions
-    
+
     except Exception as e:
         print(f"  ⚠️ LLM action mapping failed: {e}")
-    
+
     return []
 
 
-def _keyword_action_mapping(root_cause: str, channel: str, anomaly: dict | None) -> list[dict]:
-    """Fallback keyword-based action mapping."""
+def _keyword_action_mapping(root_cause: str, channel: str, anomaly: dict | None, allowed_keys: list | None = None) -> list[dict]:
+    """Fallback keyword-based action mapping. Respects allowed_keys guardrail if provided."""
     actions = []
-    
-    # 1. Competitor / Bidding
-    if any(kw in root_cause for kw in ["competitor", "bidding", "auction", "cpc", "impression share"]):
-        actions.append(_create_action("competitor_bidding", channel, anomaly))
-    
-    # 2. Creative / Content
-    if any(kw in root_cause for kw in ["creative", "fatigue", "ad copy", "script", "video", "frequency"]):
-        actions.append(_create_action("creative_fatigue", channel, anomaly))
-    
-    # 3. Technical / Tracking
-    if any(kw in root_cause for kw in ["tracking", "pixel", "attribution", "measurement", "tag", "ios", "capi", "gtm"]):
-        actions.append(_create_action("tracking_issue", channel, anomaly))
-    
-    # 4. Budget / Spend
-    if any(kw in root_cause for kw in ["budget", "spend", "cap", "limit", "exhausted"]):
-        actions.append(_create_action("budget_exhaustion", channel, anomaly))
-    
-    # 5. Platform Errors
-    if any(kw in root_cause for kw in ["platform", "algorithm", "outage", "bug", "update"]):
-        actions.append(_create_action("platform_issue", channel, anomaly))
-    
-    # 6. Saturation / Frequency
-    if any(kw in root_cause for kw in ["saturation", "frequency", "overexposure", "lookalike"]):
-        actions.append(_create_action("audience_saturation", channel, anomaly))
 
-    # 7. Fraud / Bots
+    def _add(key):
+        if allowed_keys is None or key in allowed_keys:
+            actions.append(_create_action(key, channel, anomaly))
+
+    if any(kw in root_cause for kw in ["competitor", "bidding", "auction", "cpc", "impression share"]):
+        _add("competitor_bidding")
+    if any(kw in root_cause for kw in ["creative", "fatigue", "ad copy", "script", "video", "frequency"]):
+        _add("creative_fatigue")
+    if any(kw in root_cause for kw in ["tracking", "pixel", "attribution", "measurement", "tag", "ios", "capi", "gtm"]):
+        _add("tracking_issue")
+    if any(kw in root_cause for kw in ["budget", "spend", "cap", "limit", "exhausted"]):
+        _add("budget_exhaustion")
+    if any(kw in root_cause for kw in ["platform", "algorithm", "outage", "bug", "update"]):
+        _add("platform_issue")
+    if any(kw in root_cause for kw in ["saturation", "frequency", "overexposure", "lookalike"]):
+        _add("audience_saturation")
     if any(kw in root_cause for kw in ["bot", "fraud", "fake", "invalid", "click farm"]):
         if "influencer" in channel:
-            actions.append(_create_action("influencer_fraud", channel, anomaly))
+            _add("influencer_fraud")
         else:
-            actions.append(_create_action("bot_traffic", channel, anomaly))
-
-    # 8. TV / Offline Issues
+            _add("bot_traffic")
     if any(kw in root_cause for kw in ["preempt", "make-good", "nielsen", "tv spot", "grp", "delivery"]):
-        actions.append(_create_action("make_good", channel, anomaly))
-
-    # 9. Partner / Affiliate
+        _add("make_good")
     if any(kw in root_cause for kw in ["affiliate", "partner", "coupon", "leakage", "promo code"]):
-        actions.append(_create_action("partner_issue", channel, anomaly))
-    
-    # 10. Schedule / Timing
+        _add("partner_issue")
     if any(kw in root_cause for kw in ["daypart", "schedule", "timing", "weekend", "holiday", "download"]):
-        actions.append(_create_action("schedule_adjustment", channel, anomaly))
-    
+        _add("schedule_adjustment")
+
     return actions
 
 
 def _create_action(template_key: str, channel: str, anomaly: dict | None) -> dict:
     """Create an action from a template."""
     template = ACTION_TEMPLATES.get(template_key, {})
-    
-    # Determine resource ID (would be real campaign/ad group ID in production)
-    resource_id = f"{channel}_campaign_001"  # Mock
-    
     return {
         "action_id": f"action_{uuid.uuid4().hex[:8]}",
         "action_type": template.get("action_type", "notification"),
         "platform": _get_platform(channel),
         "resource_type": "campaign",
-        "resource_id": resource_id,
+        "resource_id": f"{channel}_campaign_001",
         "operation": template.get("operation", "alert"),
         "parameters": template.get("parameters", {}),
         "estimated_impact": template.get("estimated_impact", "Unknown"),

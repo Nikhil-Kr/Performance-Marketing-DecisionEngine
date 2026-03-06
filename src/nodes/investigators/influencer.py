@@ -121,8 +121,21 @@
 #         "current_node": "investigate_influencer"
 #     }
 
-## <--------- Updated - 3/3 --------->
+## <--------- V3 - Cross-Channel Correlation, No Date Range (Previous Active) --------->
+
+# ## <--------- Updated - 3/3 --------->
+# """Influencer Causal Analyst Node - V3 had no date range awareness, no analysis_start/end in prompt."""
+# def investigate_influencer(state) -> dict: ...  (fetches all data, not date-bounded)
+# def _summarize_campaigns(df): ...
+# def _summarize_creators(df): ...
+# def _format_attribution(attribution): ...
+# def _format_correlation_context(correlated): ...
+
+## <--------- V4 - Date Range Restored (P4) --------->
+
 """Influencer Causal Analyst Node - Analyzes creator/influencer anomalies."""
+import pandas as pd
+from datetime import datetime, timedelta
 from src.schemas.state import ExpeditionState
 from src.data_layer import get_influencer_data
 from src.intelligence.models import get_llm_safe
@@ -135,54 +148,102 @@ from src.intelligence.prompts.investigator import (
 def investigate_influencer(state: ExpeditionState) -> dict:
     """
     Influencer Causal Analyst Node.
-    
-    Specialized investigator for creator/influencer campaigns.
-    Focuses on:
-    - Creator performance analysis
-    - Platform-specific metrics
-    - Causal/incremental impact assessment
-    - Attribution quality
-    
-    Now includes cross-channel correlation context (Improvement #2).
+
+    Specialized investigator for creator/influencer campaigns. Now respects the
+    analysis date range selected in the UI (P4: time-travel), filtering creator
+    posts to the analysis window and passing analysis_start/analysis_end to the prompt.
+
     Uses Tier 1 (Flash) model for initial analysis.
     """
     print("\n🎯 Investigating Influencer Campaign...")
-    
+
     anomaly = state.get("selected_anomaly")
     correlated = state.get("correlated_anomalies", [])
-    
+
     if not anomaly:
         return {
             "investigation_evidence": None,
             "investigation_summary": "No anomaly to investigate",
             "current_node": "investigate_influencer",
         }
-    
-    # Gather evidence from influencer data
+
+    # --- Resolve analysis date range (P4: time-travel) ---
+    analysis_start = None
+    analysis_end = None
+
+    if state.get("analysis_start_date"):
+        try:
+            analysis_start = datetime.strptime(state["analysis_start_date"], "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+
+    if state.get("analysis_end_date"):
+        try:
+            analysis_end = datetime.strptime(state["analysis_end_date"], "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+
+    if not analysis_end:
+        try:
+            detect_str = anomaly.get("detected_at")
+            analysis_end = datetime.strptime(detect_str, "%Y-%m-%d") if detect_str else datetime.now()
+        except Exception:
+            analysis_end = datetime.now()
+
+    if not analysis_start:
+        analysis_start = analysis_end - timedelta(days=30)
+
+    print(f"  📅 Analysis Period: {analysis_start.strftime('%Y-%m-%d')} to {analysis_end.strftime('%Y-%m-%d')}")
+
+    # --- Gather influencer data (date-bounded) ---
     influencer = get_influencer_data()
-    
-    # Get campaign performance
-    campaign_df = influencer.get_campaign_performance()
-    campaign_data = _summarize_campaigns(campaign_df)
-    
-    # Get creator performance
+    creator_name = anomaly.get("entity")
+
+    all_campaigns = influencer.get_campaign_performance()
+
+    # Filter to this creator if we know their name
+    if creator_name and not all_campaigns.empty and "creator_name" in all_campaigns.columns:
+        creator_data = all_campaigns[all_campaigns["creator_name"] == creator_name].copy()
+    else:
+        creator_data = all_campaigns.copy()
+
+    # Posts within the analysis window (current anomaly context)
+    if not creator_data.empty and "post_date" in creator_data.columns:
+        current_posts = creator_data[
+            (creator_data["post_date"] <= pd.Timestamp(analysis_end)) &
+            (creator_data["post_date"] >= pd.Timestamp(analysis_start))
+        ].sort_values("post_date", ascending=False).head(5)
+
+        # History strictly before the analysis window (for baseline)
+        history_posts = creator_data[
+            creator_data["post_date"] < pd.Timestamp(analysis_start)
+        ].sort_values("post_date", ascending=False).head(5)
+    else:
+        current_posts = creator_data.head(5)
+        history_posts = creator_data.tail(5)
+
+    campaign_data = (
+        current_posts.to_markdown(index=False) if not current_posts.empty
+        else "No campaign data found for this analysis period."
+    )
+    creator_history = (
+        history_posts.to_markdown(index=False) if not history_posts.empty
+        else "No prior history found before analysis window."
+    )
+
+    # Attribution analysis
     creator_df = influencer.get_creator_performance()
-    creator_history = _summarize_creators(creator_df)
-    
-    # Get attribution analysis (mock causal data)
-    if not campaign_df.empty:
-        campaign_id = campaign_df["campaign_id"].iloc[0]
+    if not all_campaigns.empty and "campaign_id" in all_campaigns.columns:
+        campaign_id = all_campaigns["campaign_id"].iloc[0]
         attribution = influencer.get_attribution_analysis(campaign_id)
         attribution_data = _format_attribution(attribution)
     else:
         attribution_data = "No attribution data available"
-    
-    # Cross-channel correlation context (Improvement #2)
-    correlation_context = ""
-    if correlated:
-        correlation_context = _format_correlation_context(correlated)
-    
-    # Package raw evidence
+
+    # Correlation context
+    correlation_context = _format_correlation_context(correlated) if correlated else ""
+
+    # --- Package raw evidence ---
     raw_evidence = {
         "channel": "influencer",
         "anomaly": anomaly,
@@ -190,34 +251,37 @@ def investigate_influencer(state: ExpeditionState) -> dict:
         "creator_history": creator_history,
         "attribution_data": attribution_data,
         "correlation_context": correlation_context,
+        "analysis_start": analysis_start.strftime("%Y-%m-%d"),
+        "analysis_end": analysis_end.strftime("%Y-%m-%d"),
     }
-    
-    # Generate investigation using LLM
+
+    # --- Build prompt and call LLM ---
     try:
         llm = get_llm_safe("tier1")
-        
+
         prompt = format_influencer_prompt(
             anomaly=anomaly,
             campaign_data=campaign_data,
             creator_history=creator_history,
             attribution_data=attribution_data,
+            analysis_start=analysis_start.strftime("%Y-%m-%d"),
+            analysis_end=analysis_end.strftime("%Y-%m-%d"),
             correlation_context=correlation_context,
         )
-        
+
         messages = [
             {"role": "system", "content": INFLUENCER_SYSTEM_PROMPT},
             {"role": "user", "content": prompt},
         ]
-        
+
         response = llm.invoke(messages)
         investigation_summary = response.content
-        
         print("  ✅ Influencer investigation complete")
-        
+
     except Exception as e:
         print(f"  ⚠️ LLM investigation failed: {e}")
         investigation_summary = f"Investigation error: {str(e)}"
-    
+
     return {
         "investigation_evidence": raw_evidence,
         "investigation_summary": investigation_summary,
@@ -225,59 +289,25 @@ def investigate_influencer(state: ExpeditionState) -> dict:
     }
 
 
-def _summarize_campaigns(df) -> str:
-    """Summarize influencer campaign data."""
-    if df.empty:
-        return "No campaign data available"
-    
-    lines = []
-    for _, row in df.head(10).iterrows():
-        lines.append(
-            f"- {row.get('creator_name', 'Unknown')} ({row.get('platform', 'unknown')}): "
-            f"${row.get('contract_value', 0):,.0f} spend, "
-            f"{int(row.get('impressions', 0)):,} impressions, "
-            f"{int(row.get('engagements', 0)):,} engagements"
-        )
-    
-    return "\n".join(lines)
-
-
-def _summarize_creators(df) -> str:
-    """Summarize creator-level performance."""
-    if df.empty:
-        return "No creator data available"
-    
-    lines = []
-    for _, row in df.iterrows():
-        eng_rate = row.get("engagements", 0) / max(row.get("impressions", 1), 1) * 100
-        lines.append(
-            f"- {row.get('creator_name', 'Unknown')} ({row.get('platform', 'unknown')}): "
-            f"Engagement Rate: {eng_rate:.2f}%, "
-            f"{int(row.get('conversions', 0))} conversions"
-        )
-    
-    return "\n".join(lines)
-
-
 def _format_attribution(attribution: dict) -> str:
     """Format attribution analysis data."""
     if not attribution:
         return "No attribution data"
-    
-    return f"""Attribution Analysis:
-- Total Spend: ${attribution.get('total_spend', 0):,.2f}
-- Total Conversions: {attribution.get('total_conversions', 0)}
-- Observed Conv Rate: {attribution.get('observed_conversion_rate', 0):.4f}
-- Baseline Conv Rate: {attribution.get('baseline_conversion_rate', 0):.4f}
-- Incremental Lift: {attribution.get('incremental_lift_pct', 0):.1f}%
-- Statistical Significance: {attribution.get('statistical_significance', 0):.2f}"""
+    return (
+        f"Attribution Analysis:\n"
+        f"- Total Spend: ${attribution.get('total_spend', 0):,.2f}\n"
+        f"- Total Conversions: {attribution.get('total_conversions', 0)}\n"
+        f"- Observed Conv Rate: {attribution.get('observed_conversion_rate', 0):.4f}\n"
+        f"- Baseline Conv Rate: {attribution.get('baseline_conversion_rate', 0):.4f}\n"
+        f"- Incremental Lift: {attribution.get('incremental_lift_pct', 0):.1f}%\n"
+        f"- Statistical Significance: {attribution.get('statistical_significance', 0):.2f}"
+    )
 
 
-def _format_correlation_context(correlated: list[dict]) -> str:
+def _format_correlation_context(correlated: list) -> str:
     """Format cross-channel correlations."""
     lines = ["\n## Cross-Channel Correlations"]
     lines.append("The following anomalies were detected simultaneously:\n")
-    
     for c in correlated[:3]:
         reasons = ", ".join(c.get("correlation_reasons", []))
         lines.append(
@@ -285,5 +315,4 @@ def _format_correlation_context(correlated: list[dict]) -> str:
             f"{c.get('direction', '')} {c.get('deviation_pct', 0):+.1f}% "
             f"(correlation: {reasons})"
         )
-    
     return "\n".join(lines)

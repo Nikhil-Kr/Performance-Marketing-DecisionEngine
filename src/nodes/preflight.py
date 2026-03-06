@@ -231,15 +231,23 @@ def detect_anomalies(state: ExpeditionState) -> dict:
     # 2. AUTO-PILOT: No user selection, so we scan everything and pick the worst one.
     marketing = get_marketing_data()
     influencer = get_influencer_data()
-    
+
+    # Extract date range from state (set by UI date picker)
+    analysis_start = state.get("analysis_start_date")
+    analysis_end = state.get("analysis_end_date")
+    if analysis_start and not isinstance(analysis_start, datetime):
+        analysis_start = datetime.fromisoformat(str(analysis_start))
+    if analysis_end and not isinstance(analysis_end, datetime):
+        analysis_end = datetime.fromisoformat(str(analysis_end))
+
     all_anomalies = []
-    
+
     # Check marketing channels
-    marketing_anomalies = marketing.get_anomalies()
+    marketing_anomalies = marketing.get_anomalies(start_date=analysis_start, end_date=analysis_end)
     all_anomalies.extend(marketing_anomalies)
-    
+
     # Check influencer campaigns
-    influencer_anomalies = influencer.get_anomalies()
+    influencer_anomalies = influencer.get_anomalies(start_date=analysis_start, end_date=analysis_end)
     all_anomalies.extend(influencer_anomalies)
     
     # Select highest priority anomaly

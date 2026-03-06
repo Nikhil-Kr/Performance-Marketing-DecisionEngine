@@ -235,11 +235,21 @@
 # - Consider 4-8 week lag for brand lift impact
 # - Check vendor-reported vs. third-party measurement discrepancies""")
 
-## <--------- Updated - 3/3 --------->
+## <--------- V3 - Specialized Offline Context, No Date Range (Previous Active) --------->
+
+# ## <--------- Updated - 3/3 --------->
+# """Offline Channel Investigator - V3 used marketing data only, no market/strategy, no date range."""
+# def investigate_offline(state) -> dict: ...  (no analysis_start/end, no competitor/strategy data)
+# def _summarize_offline_performance(df, channel): ...
+# def _get_channel_context(channel): ...
+# def _format_correlation_context(correlated): ...
+
+## <--------- V4 - Market + Strategy Intelligence + Date Range Restored --------->
 
 """Offline Channel Investigator Node - Analyzes TV, Radio, OOH, Events, Podcast, Direct Mail."""
+from datetime import datetime, timedelta
 from src.schemas.state import ExpeditionState
-from src.data_layer import get_marketing_data
+from src.data_layer import get_marketing_data, get_market_data, get_strategy_data
 from src.intelligence.models import get_llm_safe
 from src.intelligence.prompts.investigator import (
     OFFLINE_SYSTEM_PROMPT,
@@ -250,86 +260,131 @@ from src.intelligence.prompts.investigator import (
 def investigate_offline(state: ExpeditionState) -> dict:
     """
     Offline Channel Investigator Node.
-    
-    Improvement #5: Specialized investigator for offline channels.
-    
-    Focuses on:
-    - TV: GRP delivery, preemptions, CTV vs linear, Nielsen gaps
-    - Radio: Spot delivery, daypart performance, make-goods
-    - OOH: Impression delivery, location performance
-    - Events: Attendance, engagement, cost per attendee
-    - Podcast: Download rates, completion rates, promo code tracking
-    - Direct Mail: Response rates, delivery timing, list quality
-    
+
+    Specialized investigator for offline channels (TV, Radio, OOH, Events, Podcast, Direct Mail).
+    Now includes market intelligence (competitor signals, market trends), strategy context
+    (MMM saturation, MTA), and respects the analysis date range selected in the UI.
+
     Uses Tier 1 (Flash) model for initial analysis.
     """
     print("\n📺 Investigating Offline Channel...")
-    
+
     anomaly = state.get("selected_anomaly")
     correlated = state.get("correlated_anomalies", [])
-    
+
     if not anomaly:
         return {
             "investigation_evidence": None,
             "investigation_summary": "No anomaly to investigate",
             "current_node": "investigate_offline",
         }
-    
+
     channel = anomaly.get("channel", "unknown")
-    
-    # Gather evidence from data layer
+
+    # --- Resolve analysis date range (P4: time-travel) ---
+    analysis_start = None
+    analysis_end = None
+
+    if state.get("analysis_start_date"):
+        try:
+            analysis_start = datetime.strptime(state["analysis_start_date"], "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+
+    if state.get("analysis_end_date"):
+        try:
+            analysis_end = datetime.strptime(state["analysis_end_date"], "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+
+    if not analysis_end:
+        try:
+            detect_str = anomaly.get("detected_at")
+            analysis_end = datetime.strptime(detect_str, "%Y-%m-%d") if detect_str else datetime.now()
+        except Exception:
+            analysis_end = datetime.now()
+
+    if not analysis_start:
+        analysis_start = analysis_end - timedelta(days=30)
+
+    analysis_days = max((analysis_end - analysis_start).days, 1)
+    lookback_days = min(analysis_days, 14)
+
+    print(f"  📅 Analysis Period: {analysis_start.strftime('%Y-%m-%d')} to {analysis_end.strftime('%Y-%m-%d')}")
+
+    # --- 1. Internal performance data (time-travel enabled) ---
     marketing = get_marketing_data()
-    
-    # Get recent performance
-    performance_df = marketing.get_channel_performance(channel, days=14)
-    if performance_df.empty:
-        performance_summary = "No performance data available"
-    else:
-        performance_summary = _summarize_offline_performance(performance_df, channel)
-    
-    # Channel-specific context
-    channel_context = _get_channel_context(channel)
-    
+    performance_df = marketing.get_channel_performance(channel, days=lookback_days, end_date=analysis_end)
+    performance_summary = (
+        _summarize_offline_performance(performance_df, channel) if not performance_df.empty
+        else "No performance data available"
+    )
+
+    # --- 2. Market intelligence (time-travel enabled) ---
+    market = get_market_data()
+    competitors = market.get_competitor_signals(channel, reference_date=analysis_end)
+    trends = market.get_market_interest(days=analysis_days, end_date=analysis_end)
+    competitor_intel = _format_competitors(competitors)
+    market_trends = _format_trends(trends)
+
+    # --- 3. Strategy context (time-travel enabled) ---
+    strategy = get_strategy_data()
+    mmm = strategy.get_mmm_guardrails(channel, reference_date=analysis_end)
+    mta = strategy.get_mta_comparison(channel, reference_date=analysis_end)
+    strategy_text = _format_strategy(mmm, mta)
+
+    # Combine strategy with offline-specific guidance
+    offline_context_text = _get_channel_context(channel)
+    channel_context = f"{strategy_text}\n\n{offline_context_text}"
+
     # Correlation context
-    correlation_context = ""
-    if correlated:
-        correlation_context = _format_correlation_context(correlated)
-    
-    # Package raw evidence
+    correlation_context = _format_correlation_context(correlated) if correlated else ""
+
+    # --- Package raw evidence ---
     raw_evidence = {
         "channel": channel,
         "anomaly": anomaly,
         "performance_summary": performance_summary,
         "channel_context": channel_context,
+        "competitor_intel": competitor_intel,
+        "market_trends": market_trends,
         "correlation_context": correlation_context,
         "recent_metrics": performance_df.tail(7).to_dict() if not performance_df.empty else {},
+        "analysis_start": analysis_start.strftime("%Y-%m-%d"),
+        "analysis_end": analysis_end.strftime("%Y-%m-%d"),
     }
-    
-    # Generate investigation using LLM
+
+    # --- 4. Build prompt and call LLM ---
+    # Prepend market/competitor intelligence into performance context for the offline prompt
+    full_performance = (
+        f"{performance_summary}\n\n"
+        f"## Competitive Intelligence\n{competitor_intel}\n\n"
+        f"## Market Trends\n{market_trends}"
+    )
+
     try:
         llm = get_llm_safe("tier1")
-        
+
         prompt = format_offline_prompt(
             anomaly=anomaly,
-            performance_summary=performance_summary,
+            performance_summary=full_performance,
             channel_context=channel_context,
             correlation_context=correlation_context,
         )
-        
+
         messages = [
             {"role": "system", "content": OFFLINE_SYSTEM_PROMPT},
             {"role": "user", "content": prompt},
         ]
-        
+
         response = llm.invoke(messages)
         investigation_summary = response.content
-        
         print(f"  ✅ Offline investigation complete for {channel}")
-        
+
     except Exception as e:
         print(f"  ⚠️ LLM investigation failed: {e}")
         investigation_summary = f"Investigation error: {str(e)}"
-    
+
     return {
         "investigation_evidence": raw_evidence,
         "investigation_summary": investigation_summary,
@@ -340,8 +395,6 @@ def investigate_offline(state: ExpeditionState) -> dict:
 def _summarize_offline_performance(df, channel: str) -> str:
     """Create a text summary tailored to offline channel metrics."""
     lines = []
-    
-    # Different metrics matter for different offline channels
     offline_metrics = {
         "tv": ["spend", "impressions", "conversions", "cpa", "roas"],
         "radio": ["spend", "impressions", "conversions", "cpa"],
@@ -350,84 +403,111 @@ def _summarize_offline_performance(df, channel: str) -> str:
         "podcast": ["spend", "clicks", "conversions", "cpa", "roas"],
         "direct_mail": ["spend", "conversions", "cpa", "roas"],
     }
-    
     metrics_to_check = offline_metrics.get(channel, ["spend", "cpa", "roas", "conversions"])
-    
     for metric in metrics_to_check:
         if metric in df.columns:
             recent_avg = df[metric].tail(3).mean()
             prior_avg = df[metric].head(len(df) - 3).mean()
-            
             if prior_avg > 0:
                 change_pct = ((recent_avg - prior_avg) / prior_avg) * 100
                 trend = "↑" if change_pct > 5 else "↓" if change_pct < -5 else "→"
                 lines.append(f"- {metric.upper()}: {recent_avg:.2f} ({trend} {change_pct:+.1f}% vs prior)")
-    
-    # Add offline-specific context
     if channel == "tv" and "impressions" in df.columns:
         total_impressions = df["impressions"].tail(7).sum()
         lines.append(f"- Est. GRPs (7-day): {total_impressions / 1000:.0f}k impressions delivered")
-    
     if channel == "direct_mail" and "conversions" in df.columns:
-        total_conv = df["conversions"].tail(7).sum()
         total_spend = df["spend"].tail(7).sum()
-        response_rate = total_conv / max(total_spend / 5, 1) * 100  # Rough est
+        total_conv = df["conversions"].tail(7).sum()
+        response_rate = total_conv / max(total_spend / 5, 1) * 100
         lines.append(f"- Est. Response Rate: {response_rate:.2f}%")
-    
     return "\n".join(lines) if lines else "No metrics available"
 
 
 def _get_channel_context(channel: str) -> str:
     """Return channel-specific investigation context and common issues."""
     contexts = {
-        "tv": """TV Channel Context:
+        "tv": """### TV Channel Context
 - Linear TV spots can be preempted by breaking news or sports events
 - CTV/OTT inventory has frequency capping and viewability concerns
 - Nielsen measurement has 2-3 day reporting lag
 - Make-goods are standard remedy for under-delivered GRPs
 - Check for daypart shifts (primetime vs daytime performance)""",
-        
-        "radio": """Radio Channel Context:
+        "radio": """### Radio Channel Context
 - Spot delivery verification through affidavit reports
 - Drive-time (AM/PM commute) vs midday performance varies significantly
 - Market-specific issues (weather, local events) affect listenership
 - Streaming radio (iHeart, Spotify) has different measurement than terrestrial""",
-        
-        "ooh": """OOH (Out-of-Home) Channel Context:
+        "ooh": """### OOH (Out-of-Home) Channel Context
 - Billboard/transit impression estimates based on traffic data
 - Geofencing and mobile measurement for attribution
 - Weather and construction can block visibility
 - Digital OOH has rotation and share-of-voice considerations""",
-        
-        "events": """Events Channel Context:
+        "events": """### Events Channel Context
 - Attendance tracking (registered vs actual) affects CPA
 - Lead quality varies by event type (conference vs trade show)
 - High upfront cost with delayed conversion attribution
 - Seasonal patterns (Q1 trade shows, Q3 conferences)""",
-        
-        "podcast": """Podcast Channel Context:
+        "podcast": """### Podcast Channel Context
 - Downloads vs listens vs completions are different metrics
 - Host-read vs produced ads have different engagement rates
 - Promo code and vanity URL tracking for attribution
 - Episode release timing affects download volume
 - IAB certification standards for measurement""",
-        
-        "direct_mail": """Direct Mail Channel Context:
+        "direct_mail": """### Direct Mail Channel Context
 - Response rates typically 1-5% depending on list quality
 - Delivery timing: 3-10 business days for standard, 1-3 for express
 - List fatigue and suppression file management
 - Seasonal patterns (holiday mail volume affects delivery)
 - A/B testing requires sufficient volume per variant""",
     }
-    
-    return contexts.get(channel, f"No specific context available for {channel}")
+    return contexts.get(channel, f"### Offline Channel Considerations\n- Attribution is typically modeled, not directly tracked\n- Consider 4-8 week lag for brand lift impact")
 
 
-def _format_correlation_context(correlated: list[dict]) -> str:
+def _format_competitors(signals: list) -> str:
+    if not signals:
+        return "No significant competitor activity detected in this period."
+    lines = [
+        f"- {s.get('date')}: {s.get('competitor')} ({s.get('activity_type')}) - {s.get('details')}"
+        for s in signals
+    ]
+    return "\n".join(lines)
+
+
+def _format_trends(trends: list) -> str:
+    if not trends:
+        return "No market trend data available."
+    recent = trends[-5:]
+    lines = [f"- {t.get('date')}: Interest Score {t.get('interest_score')}" for t in recent]
+    return "\n".join(lines)
+
+
+def _format_strategy(mmm: dict, mta: dict) -> str:
+    lines = []
+    if mmm:
+        lines.append("### MMM Saturation Analysis")
+        lines.append(f"- Saturation Point: ${mmm.get('saturation_point_daily', 'N/A')}/day")
+        lines.append(f"- Marginal ROAS: {mmm.get('current_marginal_roas', 'N/A')}")
+        lines.append(f"- Recommendation: {mmm.get('recommendation', 'N/A').upper()}")
+    else:
+        lines.append("### MMM Analysis: Not available")
+    if mta:
+        lines.append("\n### MTA Attribution Comparison")
+        lines.append(f"- Last Click ROAS: {mta.get('last_click_roas', 'N/A')}")
+        lines.append(f"- MTA ROAS: {mta.get('data_driven_roas', 'N/A')}")
+        diff = mta.get("data_driven_roas", 0) - mta.get("last_click_roas", 0)
+        if diff > 0.5:
+            lines.append("  *NOTE: Channel is undervalued by Last Click (common for offline).*")
+        elif diff < -0.5:
+            lines.append("  *NOTE: Channel is overvalued by Last Click.*")
+    else:
+        lines.append("\n### MTA Analysis: Not available")
+    return "\n".join(lines)
+
+
+def _format_correlation_context(correlated: list) -> str:
     """Format cross-channel correlations for the investigator."""
     lines = ["\n## Cross-Channel Correlations"]
     lines.append("The following anomalies were detected simultaneously and may share a root cause:\n")
-    
     for c in correlated[:3]:
         reasons = ", ".join(c.get("correlation_reasons", []))
         lines.append(
@@ -435,7 +515,6 @@ def _format_correlation_context(correlated: list[dict]) -> str:
             f"{c.get('direction', '')} {c.get('deviation_pct', 0):+.1f}% "
             f"(correlation: {reasons})"
         )
-    
     lines.append("\nConsider whether a shared root cause (e.g., tracking failure, market event) explains multiple channels.")
     return "\n".join(lines)
 

@@ -317,9 +317,11 @@ class MockMarketingData(BaseDataSource):
         self,
         channel: str,
         days: int = 30,
+        end_date: datetime | None = None,
     ) -> pd.DataFrame:
-        """Get recent performance data for a channel."""
-        end_date = datetime.now()
+        """Get performance data for a channel up to end_date (defaults to now)."""
+        if end_date is None:
+            end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         return self.get_metrics(channel, start_date, end_date)
     
@@ -328,48 +330,78 @@ class MockMarketingData(BaseDataSource):
         channel: str | None = None,
         lookback_hours: int = 24,
         threshold_sigma: float = 2.0,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> list[dict[str, Any]]:
         """
         Detect anomalies using multiple methods:
-        
+
         1. WINDOWED Z-SCORE: Compare last 3 days vs prior 30 days (not just last point)
         2. DAY-OF-WEEK SEASONALITY: Account for weekday/weekend patterns
         3. RATE-OF-CHANGE: Detect sustained trends (7-day slope)
         4. MULTI-METRIC CORRELATION: Flag when related metrics move together
-        
-        Improvement #4: Robust anomaly detection replacing single-point z-score.
+
+        start_date/end_date: When provided, restrict detection to that window.
+        The "last 3 days" and "last 7 days" windows are relative to end_date.
         """
         anomalies = []
         channels_to_check = [channel] if channel else list(self._data.keys())
-        
+
+        # Build analysis context strings for anomaly metadata
+        analysis_start_str = start_date.strftime('%Y-%m-%d') if start_date else None
+        analysis_end_str = end_date.strftime('%Y-%m-%d') if end_date else None
+
         for ch in channels_to_check:
             df = self._data.get(ch)
             if df is None or df.empty or len(df) < 14:
                 continue
-            
+
+            # --- DATE FILTER: restrict to the selected analysis window ---
+            if "date" in df.columns:
+                df_filtered = df.copy()
+                df_filtered["date"] = pd.to_datetime(df_filtered["date"])
+                if end_date:
+                    # Normalize to end-of-day so rows with intraday timestamps
+                    # (e.g. 14:29:11) are included on the selected end date
+                    end_ts = pd.Timestamp(end_date).normalize() + pd.Timedelta(days=1, seconds=-1)
+                    df_filtered = df_filtered[df_filtered["date"] <= end_ts]
+                if start_date:
+                    df_filtered = df_filtered[df_filtered["date"] >= pd.Timestamp(start_date).normalize()]
+                if len(df_filtered) < 14:
+                    continue
+            else:
+                df_filtered = df
+
+            # Use the last date in the filtered window as the anomaly timestamp
+            _detected_at = (
+                str(df_filtered["date"].iloc[-1])
+                if "date" in df_filtered.columns
+                else datetime.now().isoformat()
+            )
+
             channel_anomalies = []
-            
+
             # --- Method 1: Windowed Z-Score (last 3 days vs prior 30) ---
             for metric in ["cpa", "spend", "roas", "conversions"]:
-                if metric not in df.columns:
+                if metric not in df_filtered.columns:
                     continue
-                
-                recent_window = df[metric].iloc[-3:]  # Last 3 days
-                historical = df[metric].iloc[:-3]      # Everything before
-                
+
+                recent_window = df_filtered[metric].iloc[-3:]  # Last 3 days of window
+                historical = df_filtered[metric].iloc[:-3]      # Everything before
+
                 if len(historical) < 7 or historical.std() == 0 or pd.isna(historical.std()):
                     continue
-                
+
                 recent_avg = recent_window.mean()
                 hist_mean = historical.mean()
                 hist_std = historical.std()
-                
+
                 z_score = (recent_avg - hist_mean) / hist_std
-                
+
                 if abs(z_score) >= threshold_sigma:
                     deviation_pct = ((recent_avg - hist_mean) / hist_mean) * 100
                     severity = self._classify_severity(abs(z_score))
-                    
+
                     anom = {
                         "channel": ch,
                         "metric": metric,
@@ -380,35 +412,37 @@ class MockMarketingData(BaseDataSource):
                         "severity": severity,
                         "direction": "spike" if z_score > 0 else "drop",
                         "detection_method": "windowed_zscore",
-                        "detected_at": datetime.now().isoformat(),
+                        "detected_at": _detected_at,
+                        "analysis_start": analysis_start_str,
+                        "analysis_end": analysis_end_str,
                     }
                     channel_anomalies.append(anom)
-            
+
             # --- Method 2: Day-of-Week Seasonality Check ---
-            if "date" in df.columns:
-                df_copy = df.copy()
+            if "date" in df_filtered.columns:
+                df_copy = df_filtered.copy()
                 df_copy["dow"] = pd.to_datetime(df_copy["date"]).dt.dayofweek
                 last_dow = df_copy["dow"].iloc[-1]
-                
+
                 for metric in ["cpa", "spend", "roas", "conversions"]:
                     if metric not in df_copy.columns:
                         continue
-                    
+
                     # Compare today vs same-day-of-week historical
                     same_dow = df_copy[df_copy["dow"] == last_dow][metric].iloc[:-1]
                     if len(same_dow) < 3 or same_dow.std() == 0:
                         continue
-                    
+
                     current = df_copy[metric].iloc[-1]
                     dow_mean = same_dow.mean()
                     dow_std = same_dow.std()
-                    
+
                     dow_z = (current - dow_mean) / dow_std
-                    
+
                     # Only add if this is a NEW anomaly not already caught by windowed z-score
                     if abs(dow_z) >= (threshold_sigma + 0.5):  # Higher bar for seasonal
                         already_found = any(
-                            a["metric"] == metric and a["channel"] == ch 
+                            a["metric"] == metric and a["channel"] == ch
                             for a in channel_anomalies
                         )
                         if not already_found:
@@ -423,31 +457,33 @@ class MockMarketingData(BaseDataSource):
                                 "severity": self._classify_severity(abs(dow_z)),
                                 "direction": "spike" if dow_z > 0 else "drop",
                                 "detection_method": "seasonal_zscore",
-                                "detected_at": datetime.now().isoformat(),
+                                "detected_at": _detected_at,
+                                "analysis_start": analysis_start_str,
+                                "analysis_end": analysis_end_str,
                             })
-            
+
             # --- Method 3: Rate-of-Change (7-day slope) ---
             for metric in ["cpa", "spend", "roas"]:
-                if metric not in df.columns or len(df) < 10:
+                if metric not in df_filtered.columns or len(df_filtered) < 10:
                     continue
-                
-                recent_7 = df[metric].iloc[-7:].values
+
+                recent_7 = df_filtered[metric].iloc[-7:].values
                 if len(recent_7) < 7:
                     continue
-                
+
                 # Linear regression slope
                 x = np.arange(7)
                 try:
                     slope, intercept = np.polyfit(x, recent_7, 1)
                 except (np.linalg.LinAlgError, ValueError):
                     continue
-                
+
                 # Normalize slope as % of mean
                 mean_val = recent_7.mean()
                 if mean_val == 0:
                     continue
                 daily_change_pct = (slope / mean_val) * 100
-                
+
                 # Flag if metric is changing > 3% per day consistently
                 if abs(daily_change_pct) > 3.0:
                     already_found = any(
@@ -465,21 +501,23 @@ class MockMarketingData(BaseDataSource):
                             "severity": "high" if abs(daily_change_pct) > 5 else "medium",
                             "direction": "spike" if daily_change_pct > 0 else "drop",
                             "detection_method": "rate_of_change",
-                            "detected_at": datetime.now().isoformat(),
+                            "detected_at": _detected_at,
+                            "analysis_start": analysis_start_str,
+                            "analysis_end": analysis_end_str,
                         })
-            
+
             # --- Method 4: Multi-Metric Correlation ---
             # Flag when spend goes up BUT conversions go down (or vice versa)
-            if "spend" in df.columns and "conversions" in df.columns:
-                recent_spend = df["spend"].iloc[-3:].mean()
-                prior_spend = df["spend"].iloc[-10:-3].mean()
-                recent_conv = df["conversions"].iloc[-3:].mean()
-                prior_conv = df["conversions"].iloc[-10:-3].mean()
-                
+            if "spend" in df_filtered.columns and "conversions" in df_filtered.columns:
+                recent_spend = df_filtered["spend"].iloc[-3:].mean()
+                prior_spend = df_filtered["spend"].iloc[-10:-3].mean()
+                recent_conv = df_filtered["conversions"].iloc[-3:].mean()
+                prior_conv = df_filtered["conversions"].iloc[-10:-3].mean()
+
                 if prior_spend > 0 and prior_conv > 0:
                     spend_change = (recent_spend - prior_spend) / prior_spend
                     conv_change = (recent_conv - prior_conv) / prior_conv
-                    
+
                     # Divergence: spend up significantly + conversions down significantly
                     if spend_change > 0.2 and conv_change < -0.2:
                         already_found = any(
@@ -498,15 +536,17 @@ class MockMarketingData(BaseDataSource):
                                 "direction": "spike",
                                 "detection_method": "multi_metric_divergence",
                                 "detail": f"Spend {spend_change:+.0%} while conversions {conv_change:+.0%}",
-                                "detected_at": datetime.now().isoformat(),
+                                "detected_at": _detected_at,
+                                "analysis_start": analysis_start_str,
+                                "analysis_end": analysis_end_str,
                             })
-            
+
             anomalies.extend(channel_anomalies)
-        
+
         # Sort by severity
         severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         anomalies.sort(key=lambda x: severity_order.get(x["severity"], 99))
-        
+
         return anomalies
     
     @staticmethod
@@ -529,6 +569,18 @@ class MockMarketingData(BaseDataSource):
                 last_date = pd.to_datetime(df["date"]).max()
                 freshness[channel] = last_date.to_pydatetime()
         return freshness
+
+    def get_data_date_range(self) -> tuple[datetime | None, datetime | None]:
+        """Return the (earliest, latest) date across all loaded channels."""
+        all_dates = []
+        for df in self._data.values():
+            if not df.empty and "date" in df.columns:
+                dates = pd.to_datetime(df["date"])
+                all_dates.append(dates.min())
+                all_dates.append(dates.max())
+        if not all_dates:
+            return None, None
+        return min(all_dates).to_pydatetime(), max(all_dates).to_pydatetime()
     
     def is_healthy(self) -> bool:
         """Check if data is loaded and recent."""
@@ -542,12 +594,13 @@ class MockMarketingData(BaseDataSource):
         self,
         channel: str,
         days: int = 14,
+        end_date: datetime | None = None,
     ) -> pd.DataFrame:
         """
         Get campaign-level breakdown.
         Mock: generates synthetic campaign splits from channel data.
         """
-        df = self.get_channel_performance(channel, days)
+        df = self.get_channel_performance(channel, days, end_date=end_date)
         if df.empty:
             return pd.DataFrame()
         

@@ -126,15 +126,23 @@
 
 #     return {"historical_incidents": [], "rag_context": "No matches found."}
 
-## <--------- Updated - 3/3 --------->
+## <--------- V3 - store_resolution + get_recovery_curve, No Temporal Filtering (Previous Active) --------->
+
+# ## <--------- Updated - 3/3 --------->
+# V3 added store_resolution() and get_recovery_curve() (kept in V4 below) but removed
+# the ChromaDB where={"date_int": {"$lte": cutoff_date_int}} clause, causing RAG to
+# return incidents from AFTER the analysis date when analyzing historical anomalies.
+# The query ran without any date filter: collection.query(n_results=5) — no where clause.
+
+## <--------- V4 - RAG Temporal Filtering Restored (P5) --------->
+
 """
 Memory Node - Retrieves historical context using RAG.
 
-Improvements:
-- #3: store_resolution() - Write approved diagnoses back to vector store
-- #9: get_recovery_curve() - Pull actual recovery timelines from past incidents
+- P5: Restored ChromaDB temporal filtering — only incidents BEFORE the analysis cutoff
+      date are returned, preventing future-incident contamination in historical analysis.
+- V3 additions preserved: store_resolution() (RAG feedback loop) and get_recovery_curve().
 """
-from typing import Any
 from datetime import datetime
 from pathlib import Path
 import csv
@@ -142,7 +150,6 @@ import chromadb
 from chromadb.config import Settings
 from src.schemas.state import ExpeditionState
 from src.intelligence.models import get_embeddings
-from src.utils.config import settings
 
 # Paths
 CHROMA_DIR = Path("data/embeddings")
@@ -152,12 +159,11 @@ COLLECTION_NAME = "post_mortems"
 
 class VertexEmbeddingWrapper:
     """Wrapper to make LangChain embeddings compatible with ChromaDB."""
-    
+
     def __init__(self, embeddings):
         self.embeddings = embeddings
-    
+
     def embed_query(self, text):
-        """Embed a single query string."""
         return self.embeddings.embed_query(text)
 
 
@@ -173,101 +179,120 @@ def get_rag_collection(client):
 def retrieve_historical_context(state: ExpeditionState) -> dict:
     """
     Retrieve similar past incidents from vector store.
+
+    P5: Only returns incidents dated BEFORE the analysis cutoff (from state's
+    analysis_end_date or anomaly's detected_at). Prevents time-travel contamination
+    where future incidents could influence historical analysis.
     """
     print("\n📚 Retrieving Historical Context (RAG)...")
-    
-    # Defensive check: Ensure state is a dict
+
     if not isinstance(state, dict):
-        print(f"  ⚠️ Error: State is not a dict, got {type(state)}")
         return {"historical_incidents": [], "rag_context": "State error."}
 
     anomaly = state.get("selected_anomaly")
-    
-    # Safely get summary and evidence, ensuring they are strings
     current_summary = str(state.get("investigation_summary") or "")
     current_evidence = str(state.get("investigation_evidence") or "")
 
-    # Defensive check: Ensure anomaly is a dict
     if not anomaly or not isinstance(anomaly, dict):
         return {"historical_incidents": [], "rag_context": "No valid anomaly selected."}
-    
-    # Construct query
-    query = f"{anomaly.get('channel', '')} {anomaly.get('metric', '')} {anomaly.get('direction', '')} {anomaly.get('root_cause', '')}"
-    
+
+    # Construct search query
+    query = (
+        f"{anomaly.get('channel', '')} {anomaly.get('metric', '')} "
+        f"{anomaly.get('direction', '')} {anomaly.get('root_cause', '')}"
+    )
+
+    # --- P5: Determine cutoff date for temporal filtering ---
+    # Priority: state's analysis_end_date > anomaly's detected_at > today
+    cutoff_date_str = (
+        state.get("analysis_end_date")
+        or anomaly.get("detected_at")
+        or datetime.now().strftime("%Y-%m-%d")
+    )
+
+    # Convert YYYY-MM-DD to integer YYYYMMDD for ChromaDB $lte comparison
+    try:
+        cutoff_date_int = int(cutoff_date_str.replace("-", ""))
+    except (ValueError, AttributeError):
+        cutoff_date_int = 20991231  # Safety: don't filter out everything if parse fails
+
+    print(f"  📅 RAG cutoff: {cutoff_date_str} (only incidents before this date)")
+
     if not CHROMA_DIR.exists():
         print("  ⚠️ Vector store not found. Run 'make init-rag'")
-        # Fall back to CSV search
-        incidents = _csv_keyword_search(anomaly)
+        incidents = _csv_keyword_search(anomaly, cutoff_date_str)
         return {
             "historical_incidents": incidents,
             "rag_context": _format_incidents_as_context(incidents),
         }
 
-    # Initialize Client
+    # Initialize ChromaDB client
     client = chromadb.PersistentClient(
         path=str(CHROMA_DIR),
         settings=Settings(anonymized_telemetry=False),
     )
-    
-    # Setup Embeddings (Explicitly)
+
     raw_embeddings = get_embeddings()
     embedding_fn = None
-    
     if raw_embeddings:
         embedding_fn = VertexEmbeddingWrapper(raw_embeddings)
         print("  🧠 RAG: Using Vertex AI Embeddings (768 dim)")
     else:
         print("  ⚠️ RAG: Using default embeddings (384 dim)")
-        
+
     collection = get_rag_collection(client)
-    
     if not collection:
-        incidents = _csv_keyword_search(anomaly)
+        incidents = _csv_keyword_search(anomaly, cutoff_date_str)
         return {
             "historical_incidents": incidents,
             "rag_context": _format_incidents_as_context(incidents),
         }
-    
-    # Query vector store
+
+    # --- Query with temporal filter ---
+    where_filter = {"date_int": {"$lte": cutoff_date_int}}
+
     try:
         if embedding_fn:
             query_embedding = embedding_fn.embed_query(query)
             results = collection.query(
                 query_embeddings=[query_embedding],
                 n_results=5,
+                where=where_filter,
             )
         else:
             results = collection.query(
                 query_texts=[query],
                 n_results=5,
+                where=where_filter,
             )
-        
+
         incidents = _parse_chroma_results(results)
-        print(f"  ✅ Found {len(incidents)} similar incidents")
-        
+        print(f"  ✅ Found {len(incidents)} similar incidents (prior to {cutoff_date_str})")
+
     except Exception as e:
         print(f"  ⚠️ Vector search failed: {e}")
-        incidents = _csv_keyword_search(anomaly)
-    
+        incidents = _csv_keyword_search(anomaly, cutoff_date_str)
+
+    rag_context = _format_incidents_as_context(incidents)
+
     return {
         "historical_incidents": incidents,
-        "rag_context": _format_incidents_as_context(incidents),
+        "rag_context": rag_context,
+        "investigation_summary": f"{current_summary}\n\n## Historical Context (RAG)\n{rag_context}" if incidents else current_summary,
+        "investigation_evidence": f"{current_evidence}\n\n## Historical Context (RAG)\n{rag_context}" if incidents else current_evidence,
     }
 
 
-def _parse_chroma_results(results: dict) -> list[dict]:
+def _parse_chroma_results(results: dict) -> list:
     """Parse ChromaDB query results into incident dicts."""
     incidents = []
-    
     if not results or not results.get("documents"):
         return incidents
-    
     documents = results["documents"][0] if results["documents"] else []
     metadatas = results["metadatas"][0] if results.get("metadatas") else [{}] * len(documents)
     distances = results["distances"][0] if results.get("distances") else [1.0] * len(documents)
-    
     for doc, meta, dist in zip(documents, metadatas, distances):
-        similarity = max(0, 1 - dist)  # Convert distance to similarity
+        similarity = max(0, 1 - dist)
         incidents.append({
             "incident_id": meta.get("incident_id", "unknown"),
             "date": meta.get("date", "unknown"),
@@ -277,40 +302,36 @@ def _parse_chroma_results(results: dict) -> list[dict]:
             "resolution": meta.get("resolution", ""),
             "similarity_score": round(similarity, 2),
         })
-    
     return incidents
 
 
-def _csv_keyword_search(anomaly: dict) -> list[dict]:
-    """Fallback: Search incidents.csv by keyword matching."""
+def _csv_keyword_search(anomaly: dict, cutoff_date_str: str = None) -> list:
+    """Fallback: Search incidents.csv by keyword matching, optionally date-filtered."""
     if not INCIDENTS_CSV.exists():
         return []
-    
     try:
         import pandas as pd
         df = pd.read_csv(INCIDENTS_CSV)
-        
         channel = anomaly.get("channel", "")
         metric = anomaly.get("metric", "")
-        
-        # Filter by channel match or similar keywords
         matches = df[
             df["channel"].str.contains(channel, case=False, na=False) |
             df["anomaly_type"].str.contains(metric, case=False, na=False) |
             df["root_cause"].str.contains(channel, case=False, na=False)
-        ].head(5)
-        
-        return matches.to_dict("records")
+        ]
+        # Apply date filter if cutoff provided
+        if cutoff_date_str and "date" in matches.columns:
+            matches = matches[matches["date"] <= cutoff_date_str]
+        return matches.head(5).to_dict("records")
     except Exception as e:
         print(f"  ⚠️ CSV search failed: {e}")
         return []
 
 
-def _format_incidents_as_context(incidents: list[dict]) -> str:
+def _format_incidents_as_context(incidents: list) -> str:
     """Format incidents as readable context string."""
     if not incidents:
         return "No similar historical incidents found."
-    
     lines = ["## Similar Past Incidents\n"]
     for inc in incidents:
         lines.append(
@@ -322,25 +343,20 @@ def _format_incidents_as_context(incidents: list[dict]) -> str:
 
 
 # ============================================================================
-# Improvement #3: Store Resolution (RAG Feedback Loop)
+# Store Resolution (RAG Feedback Loop) — added in V3, preserved in V4
 # ============================================================================
 
-def store_resolution(anomaly: dict, diagnosis: dict, actions: list[dict]) -> bool:
+def store_resolution(anomaly: dict, diagnosis: dict, actions: list) -> bool:
     """
     Write an approved diagnosis back to the knowledge base.
-    
-    Called when user clicks ✅ Approve on an action. This creates a new
-    post-mortem entry that future investigations can reference.
-    
-    Returns True if stored successfully.
+    Called when user clicks Approve on an action.
     """
     print("  💾 Storing resolution to knowledge base...")
-    
     try:
-        # 1. Append to incidents.csv
         new_incident = {
             "incident_id": f"INC-{datetime.now().year}-{datetime.now().strftime('%m%d%H%M')}",
             "date": datetime.now().strftime("%Y-%m-%d"),
+            "date_int": int(datetime.now().strftime("%Y%m%d")),
             "channel": anomaly.get("channel", "unknown"),
             "anomaly_type": f"{anomaly.get('metric', 'unknown')} {anomaly.get('direction', 'anomaly')}",
             "severity": anomaly.get("severity", "medium"),
@@ -348,25 +364,16 @@ def store_resolution(anomaly: dict, diagnosis: dict, actions: list[dict]) -> boo
             "resolution": "; ".join([a.get("operation", "") for a in actions[:3]]),
             "similarity_score": diagnosis.get("confidence", 0.5),
         }
-        
-        # Ensure directory exists
         INCIDENTS_CSV.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Append to CSV
         file_exists = INCIDENTS_CSV.exists()
         with open(INCIDENTS_CSV, "a", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=new_incident.keys())
             if not file_exists:
                 writer.writeheader()
             writer.writerow(new_incident)
-        
         print(f"  ✅ Stored as {new_incident['incident_id']}")
-        
-        # 2. Try to add to ChromaDB (best effort)
         _add_to_vector_store(new_incident)
-        
         return True
-        
     except Exception as e:
         print(f"  ⚠️ Failed to store resolution: {e}")
         return False
@@ -376,26 +383,20 @@ def _add_to_vector_store(incident: dict) -> None:
     """Best-effort addition to ChromaDB vector store."""
     if not CHROMA_DIR.exists():
         return
-    
     try:
         client = chromadb.PersistentClient(
             path=str(CHROMA_DIR),
             settings=Settings(anonymized_telemetry=False),
         )
-        
         collection = get_rag_collection(client)
         if not collection:
             return
-        
-        # Create document text
         doc_text = (
             f"Channel: {incident['channel']}. "
             f"Type: {incident['anomaly_type']}. "
             f"Root Cause: {incident['root_cause']}. "
             f"Resolution: {incident['resolution']}"
         )
-        
-        # Try to embed and add
         raw_embeddings = get_embeddings()
         if raw_embeddings:
             embedding = raw_embeddings.embed_query(doc_text)
@@ -403,74 +404,53 @@ def _add_to_vector_store(incident: dict) -> None:
                 ids=[incident["incident_id"]],
                 documents=[doc_text],
                 embeddings=[embedding],
-                metadatas=[incident],
+                metadatas=[{k: v for k, v in incident.items() if isinstance(v, (str, int, float, bool))}],
             )
         else:
             collection.add(
                 ids=[incident["incident_id"]],
                 documents=[doc_text],
-                metadatas=[incident],
+                metadatas=[{k: v for k, v in incident.items() if isinstance(v, (str, int, float, bool))}],
             )
-        
         print(f"  🧠 Added to vector store: {incident['incident_id']}")
-        
     except Exception as e:
         print(f"  ⚠️ Vector store addition failed (non-critical): {e}")
 
 
 # ============================================================================
-# Improvement #9: Recovery Curves from Historical Data
+# Recovery Curves from Historical Data — added in V3, preserved in V4
 # ============================================================================
 
 def get_recovery_curve(anomaly_type: str, channel: str) -> dict | None:
     """
     Look up actual recovery timelines from resolved incidents.
-    
-    Used by the impact simulator to show realistic projections
-    instead of hardcoded linear paths.
-    
-    Returns dict with:
-    - avg_days_to_resolve: Average resolution time
-    - recovery_pattern: "fast" (1-2 days), "medium" (3-5), "slow" (7+)
-    - similar_resolutions: List of past resolution descriptions
+    Used by the impact simulator for realistic projections.
     """
     if not INCIDENTS_CSV.exists():
         return None
-    
     try:
         import pandas as pd
         df = pd.read_csv(INCIDENTS_CSV)
-        
-        # Find similar resolved incidents
         matches = df[
             df["channel"].str.contains(channel, case=False, na=False) |
             df["anomaly_type"].str.contains(anomaly_type, case=False, na=False)
         ]
-        
         if matches.empty:
             return None
-        
-        # Estimate recovery time based on severity distribution
         severity_map = {"critical": 5, "high": 3, "medium": 2, "low": 1}
         avg_severity = matches["severity"].map(severity_map).mean()
-        
         if avg_severity >= 4:
-            pattern = "slow"
-            avg_days = 7
+            pattern, avg_days = "slow", 7
         elif avg_severity >= 2.5:
-            pattern = "medium"
-            avg_days = 3
+            pattern, avg_days = "medium", 3
         else:
-            pattern = "fast"
-            avg_days = 1
-        
+            pattern, avg_days = "fast", 1
         return {
             "avg_days_to_resolve": avg_days,
             "recovery_pattern": pattern,
             "similar_count": len(matches),
             "similar_resolutions": matches["resolution"].head(3).tolist(),
         }
-    
     except Exception as e:
         print(f"  ⚠️ Recovery curve lookup failed: {e}")
         return None
