@@ -1,7 +1,7 @@
 """Router Node - Routes anomalies to appropriate specialist."""
 from src.schemas.state import ExpeditionState
 from src.data_layer import get_marketing_data
-from src.intelligence.models import get_llm_safe
+from src.intelligence.models import get_llm_safe, extract_content
 from src.intelligence.prompts.router import ROUTER_SYSTEM_PROMPT, format_router_prompt
 
 
@@ -69,7 +69,7 @@ def _llm_route(anomaly: dict) -> str:
         ]
         
         response = llm.invoke(messages)
-        result = response.content.strip().upper()
+        result = extract_content(response).strip().upper()
         
         if "INFLUENCER" in result:
             return "influencer"

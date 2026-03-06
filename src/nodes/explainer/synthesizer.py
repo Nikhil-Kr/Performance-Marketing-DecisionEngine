@@ -272,7 +272,7 @@
 ## <--------- V4 - ROOT_CAUSE_ACTION_MAP Guardrail Restored --------->
 """Explainer Node - Synthesizes diagnosis with multi-persona explanations + action whitelisting."""
 from src.schemas.state import ExpeditionState
-from src.intelligence.models import get_llm_safe
+from src.intelligence.models import get_llm_safe, extract_content
 from src.intelligence.prompts.explainer import (
     EXPLAINER_SYSTEM_PROMPT,
     format_explainer_prompt,
@@ -423,7 +423,7 @@ def generate_explanation(state: ExpeditionState) -> dict:
         ]
 
         response = llm.invoke(messages)
-        diagnosis = parse_diagnosis_response(response.content)
+        diagnosis = parse_diagnosis_response(extract_content(response))
 
         # Confidence penalty on retries
         if retry_count > 0 and "confidence" in diagnosis:

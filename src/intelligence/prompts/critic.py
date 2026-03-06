@@ -121,11 +121,18 @@ def format_critic_prompt(
     )
 
 
-def parse_critic_response(response: str) -> dict:
+def parse_critic_response(response) -> dict:
     """Parse the JSON response from the critic."""
     import json
     import re
-    
+
+    # Gemini 3 returns content as a list of parts; normalize to string
+    if isinstance(response, list):
+        response = " ".join(
+            part.get("text", "") if isinstance(part, dict) else str(part)
+            for part in response
+        )
+
     try:
         json_match = re.search(r'\{[\s\S]*\}', response)
         if json_match:

@@ -159,7 +159,7 @@
 
 """Critic Node (Safety) - Triple-Lock Protocol for hallucination prevention."""
 from src.schemas.state import ExpeditionState
-from src.intelligence.models import get_llm_safe
+from src.intelligence.models import get_llm_safe, extract_content
 from src.intelligence.prompts.critic import (
     CRITIC_SYSTEM_PROMPT,
     format_critic_prompt,
@@ -213,7 +213,7 @@ def validate_diagnosis(state: ExpeditionState) -> dict:
         ]
         
         response = llm.invoke(messages)
-        validation = parse_critic_response(response.content)
+        validation = parse_critic_response(extract_content(response))
         
     except Exception as e:
         print(f"  ⚠️ Critic validation failed: {e}")

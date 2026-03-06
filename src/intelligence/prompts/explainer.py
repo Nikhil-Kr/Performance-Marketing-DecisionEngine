@@ -590,11 +590,18 @@ def format_retry_prompt(
     )
 
 
-def parse_diagnosis_response(response: str) -> dict:
+def parse_diagnosis_response(response) -> dict:
     """Parse the JSON response from the explainer."""
     import json
     import re
-    
+
+    # Gemini 3 returns content as a list of parts; normalize to string
+    if isinstance(response, list):
+        response = " ".join(
+            part.get("text", "") if isinstance(part, dict) else str(part)
+            for part in response
+        )
+
     # Try to extract JSON from response
     try:
         # Look for JSON block

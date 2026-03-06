@@ -575,7 +575,7 @@
 from datetime import datetime, timedelta
 from src.schemas.state import ExpeditionState
 from src.data_layer import get_marketing_data, get_market_data, get_strategy_data
-from src.intelligence.models import get_llm_safe
+from src.intelligence.models import get_llm_safe, extract_content
 from src.intelligence.prompts.investigator import (
     PAID_MEDIA_SYSTEM_PROMPT,
     format_paid_media_prompt,
@@ -703,7 +703,7 @@ def investigate_paid_media(state: ExpeditionState) -> dict:
         ]
 
         response = llm.invoke(messages)
-        investigation_summary = response.content
+        investigation_summary = extract_content(response)
         print(f"  ✅ Investigation complete for {channel}")
 
     except Exception as e:

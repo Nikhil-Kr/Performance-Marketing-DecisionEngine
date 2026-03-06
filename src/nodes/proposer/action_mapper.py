@@ -899,7 +899,7 @@ import json
 import re
 from datetime import datetime
 from src.schemas.state import ExpeditionState
-from src.intelligence.models import get_llm_safe
+from src.intelligence.models import get_llm_safe, extract_content
 from src.data_layer import get_strategy_data
 
 
@@ -1165,7 +1165,7 @@ Do not include any explanation, just the JSON array."""
         messages = [{"role": "user", "content": prompt}]
         response = llm.invoke(messages)
 
-        content = response.content.strip()
+        content = extract_content(response).strip()
         json_match = re.search(r'\[[\s\S]*?\]', content)
         if json_match:
             selected_keys = json.loads(json_match.group())

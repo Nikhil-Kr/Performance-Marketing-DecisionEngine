@@ -93,6 +93,23 @@ def get_embeddings():
         return None
 
 
+def extract_content(response) -> str:
+    """
+    Extract text from an LLM response object.
+
+    Gemini 3+ via LangChain returns response.content as a list of content
+    blocks (e.g. [{"type": "text", "text": "..."}]) rather than a plain string.
+    This normalizes both formats to a single string.
+    """
+    content = response.content
+    if isinstance(content, list):
+        return " ".join(
+            part.get("text", "") if isinstance(part, dict) else str(part)
+            for part in content
+        )
+    return content
+
+
 def get_llm_safe(tier: TierType = "tier1"):
     """Get LLM with guaranteed fallback to MockLLM."""
     try:

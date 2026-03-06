@@ -138,7 +138,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from src.schemas.state import ExpeditionState
 from src.data_layer import get_influencer_data
-from src.intelligence.models import get_llm_safe
+from src.intelligence.models import get_llm_safe, extract_content
 from src.intelligence.prompts.investigator import (
     INFLUENCER_SYSTEM_PROMPT,
     format_influencer_prompt,
@@ -275,7 +275,7 @@ def investigate_influencer(state: ExpeditionState) -> dict:
         ]
 
         response = llm.invoke(messages)
-        investigation_summary = response.content
+        investigation_summary = extract_content(response)
         print("  ✅ Influencer investigation complete")
 
     except Exception as e:
