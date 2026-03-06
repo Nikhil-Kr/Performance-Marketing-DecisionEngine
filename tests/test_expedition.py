@@ -108,10 +108,9 @@ class TestActionLayer:
         """Test MockActionExecutor can be created."""
         os.environ["ACTION_LAYER_MODE"] = "mock"
 
-        from src.action_layer import get_executor, clear_cache
-        clear_cache()
+        from src.action_layer import get_executor
 
-        executor = get_executor()
+        executor = get_executor("google_ads")
         assert executor is not None
         assert executor.platform_name == "mock"
 
@@ -119,13 +118,12 @@ class TestActionLayer:
         """Test MockActionExecutor can execute actions."""
         os.environ["ACTION_LAYER_MODE"] = "mock"
 
-        from src.action_layer import get_executor, clear_cache
-        clear_cache()
+        from src.action_layer import get_executor
 
-        executor = get_executor()
+        executor = get_executor("google_ads")
         result = executor.execute({
             "action_type": "notification",
-            "platform": "mock",
+            "platform": "google_ads",
             "operation": "alert",
             "parameters": {"team": "test"},
         })
