@@ -292,7 +292,8 @@ def _parse_chroma_results(results: dict) -> list:
     metadatas = results["metadatas"][0] if results.get("metadatas") else [{}] * len(documents)
     distances = results["distances"][0] if results.get("distances") else [1.0] * len(documents)
     for doc, meta, dist in zip(documents, metadatas, distances):
-        similarity = max(0, 1 - dist)
+        # L2 distance is unbounded [0, inf); convert to [0, 1] similarity
+        similarity = 1.0 / (1.0 + dist)
         incidents.append({
             "incident_id": meta.get("incident_id", "unknown"),
             "date": meta.get("date", "unknown"),
@@ -314,15 +315,20 @@ def _csv_keyword_search(anomaly: dict, cutoff_date_str: str = None) -> list:
         df = pd.read_csv(INCIDENTS_CSV)
         channel = anomaly.get("channel", "")
         metric = anomaly.get("metric", "")
-        matches = df[
-            df["channel"].str.contains(channel, case=False, na=False) |
-            df["anomaly_type"].str.contains(metric, case=False, na=False) |
-            df["root_cause"].str.contains(channel, case=False, na=False)
-        ]
+        # Score each row by how many keyword criteria it matches (0-3)
+        channel_match = df["channel"].str.contains(channel, case=False, na=False)
+        metric_match = df["anomaly_type"].str.contains(metric, case=False, na=False)
+        cause_match = df["root_cause"].str.contains(channel, case=False, na=False)
+        df["_match_count"] = channel_match.astype(int) + metric_match.astype(int) + cause_match.astype(int)
+        matches = df[df["_match_count"] > 0].copy()
         # Apply date filter if cutoff provided
         if cutoff_date_str and "date" in matches.columns:
             matches = matches[matches["date"] <= cutoff_date_str]
-        return matches.head(5).to_dict("records")
+        # Compute a keyword-based similarity score (fraction of criteria matched)
+        matches["similarity_score"] = (matches["_match_count"] / 3.0).round(2)
+        matches = matches.sort_values("_match_count", ascending=False).head(5)
+        matches = matches.drop(columns=["_match_count"])
+        return matches.to_dict("records")
     except Exception as e:
         print(f"  ⚠️ CSV search failed: {e}")
         return []
