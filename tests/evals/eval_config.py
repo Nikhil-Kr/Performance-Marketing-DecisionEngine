@@ -1013,4 +1013,12 @@ PASS_THRESHOLDS = {
     "critic_specificity": 0.80,       # raised from 0.75
     "action_appropriateness": 0.75,   # raised from 0.6
     "e2e_composite": 0.75,            # raised from 0.6
+    # Levels 6-9: Tier A/B/C eval expansion
+    "rag_quality": 0.75,              # RAG temporal filtering, relevancy, precision
+    "safety_guardrails": 0.90,        # strict — safety-critical (MMM, retry logic)
+    "integration": 0.75,              # cross-component (correlation, dates, critic)
+    "robustness": 0.80,               # fallbacks, JSON parsing, prompt substitution
+    # Levels 10-11: Tier D/E eval expansion
+    "finops_performance": 0.75,        # model tiers, parameters, fallbacks
+    "business_ux": 0.75,               # feedback, audit, state schema, graph structure
 }

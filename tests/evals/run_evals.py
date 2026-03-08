@@ -1,7 +1,7 @@
 """
 Expedition Eval Suite — Orchestrator
 
-Runs all 5 evaluation levels and produces a combined scorecard.
+Runs all 11 evaluation levels and produces a combined scorecard.
 
 Usage:
     # Quick mode: structural + deterministic checks only (MockLLM, ~30 seconds)
@@ -22,6 +22,12 @@ Eval Levels:
     3. Critic Calibration    — does critic pass good / reject bad diagnoses?
     4. Action Appropriateness— are proposed actions sensible for the scenario?
     5. E2E Regression        — full pipeline smoke test + snapshot comparison
+    6. RAG Quality           — temporal filtering, retrieval relevancy, recovery curves
+    7. Safety Guardrails     — MMM guardrail, retry logic, root cause categorization
+    8. Integration           — correlation scoring, date propagation, critic thresholds
+    9. Robustness            — JSON parsing, keyword fallback, prompt substitution
+   10. FinOps & Performance  — model tier assignment, parameters, fallbacks
+   11. Business & UX        — feedback logging, audit trail, state schema, graph structure
 """
 import sys
 import os
@@ -72,6 +78,30 @@ def run_evals(
     from tests.evals.eval_e2e import run_all as run_e2e
     results["level_5"] = run_e2e(save=save_snapshot, compare=compare_snapshot, consistency=consistency)
 
+    # Level 6: RAG Quality
+    from tests.evals.eval_rag import run_all as run_rag
+    results["level_6"] = run_rag()
+
+    # Level 7: Safety Guardrails
+    from tests.evals.eval_guardrails import run_all as run_guardrails
+    results["level_7"] = run_guardrails()
+
+    # Level 8: Integration
+    from tests.evals.eval_integration import run_all as run_integration
+    results["level_8"] = run_integration()
+
+    # Level 9: Robustness
+    from tests.evals.eval_robustness import run_all as run_robustness
+    results["level_9"] = run_robustness()
+
+    # Level 10: FinOps & Performance
+    from tests.evals.eval_finops import run_all as run_finops
+    results["level_10"] = run_finops()
+
+    # Level 11: Business & UX
+    from tests.evals.eval_business import run_all as run_business
+    results["level_11"] = run_business()
+
     # ========================================================================
     # SCORECARD
     # ========================================================================
@@ -81,7 +111,7 @@ def run_evals(
     print("=" * 70)
 
     scorecard = []
-    for level_key in ["level_1", "level_2", "level_3", "level_4", "level_5"]:
+    for level_key in ["level_1", "level_2", "level_3", "level_4", "level_5", "level_6", "level_7", "level_8", "level_9", "level_10", "level_11"]:
         r = results[level_key]
         level_num = r["level"]
         name = r["name"]
@@ -99,8 +129,8 @@ def run_evals(
         bar = "█" * int(score * 20) + "░" * (20 - int(score * 20))
         print(f"  Level {level_num}: {name:<25} {bar} {score:>5.0%}  {status}")
 
-    # Overall composite
-    weights = {1: 0.10, 2: 0.35, 3: 0.20, 4: 0.15, 5: 0.20}
+    # Overall composite (rebalanced with new levels)
+    weights = {1: 0.07, 2: 0.20, 3: 0.10, 4: 0.08, 5: 0.08, 6: 0.08, 7: 0.12, 8: 0.08, 9: 0.08, 10: 0.06, 11: 0.05}
     overall = sum(
         s["score"] * weights[s["level"]]
         for s in scorecard
